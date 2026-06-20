@@ -1,0 +1,2890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ALLIN YACHAY</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            padding: 1.5rem 0;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .sidebar-brand {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-brand a {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand a i {
+            color: var(--accent);
+            font-size: 1.6rem;
+        }
+
+        .sidebar-brand a span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-menu {
+            padding: 0 0.8rem;
+        }
+
+        .sidebar-menu .menu-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 0 1rem;
+            margin-bottom: 0.8rem;
+            margin-top: 1.5rem;
+            font-weight: 700;
+        }
+
+        .sidebar-menu .menu-label:first-of-type {
+            margin-top: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.7rem 1rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .sidebar-menu a.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: white;
+        }
+
+        .sidebar-menu a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--accent-gradient);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .sidebar-menu a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .sidebar-menu a .badge-sidebar {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            font-size: 0.65rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 1rem;
+        }
+
+        .sidebar-footer .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-footer .user-card img {
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-footer .user-card .user-info {
+            flex: 1;
+        }
+
+        .sidebar-footer .user-card .user-info h6 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .sidebar-footer .user-card .user-info span {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-footer .user-card .online-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 1.5rem 2rem;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+
+        /* ============ TOPBAR ============ */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-left .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .topbar-left .toggle-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        .topbar-left h4 {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .topbar-left h4 small {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar-right .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 0.4rem 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .topbar-right .search-box:focus-within {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .topbar-right .search-box input {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.3rem 0.5rem;
+            outline: none;
+            width: 150px;
+            font-size: 0.85rem;
+        }
+
+        .topbar-right .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .topbar-right .search-box i {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .topbar-right .notification-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .topbar-right .notification-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .topbar-right .notification-btn .dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        /* ============ THEME TOGGLE ============ */
+        .theme-toggle {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 50px;
+            padding: 0.3rem 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .theme-toggle .toggle-track {
+            width: 40px;
+            height: 22px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle .toggle-track .toggle-thumb {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        body.light-mode .theme-toggle .toggle-track {
+            background: rgba(0,0,0,0.2);
+        }
+
+        body.light-mode .theme-toggle .toggle-track .toggle-thumb {
+            left: 20px;
+        }
+
+        .theme-toggle i {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ============ GAMIFICATION BAR ============ */
+        .gamification-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 0.5rem 1.2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .gamification-bar .level-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gamification-bar .level-badge .level-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: white;
+        }
+
+        .gamification-bar .level-badge .level-info {
+            font-size: 0.8rem;
+        }
+
+        .gamification-bar .level-badge .level-info .level-number {
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        .gamification-bar .level-badge .level-info .level-label {
+            color: var(--text-muted);
+        }
+
+        .gamification-bar .points-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gamification-bar .points-display i {
+            color: #f59e0b;
+            font-size: 1.3rem;
+        }
+
+        .gamification-bar .points-display .points-number {
+            font-weight: 900;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .gamification-bar .points-display .points-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .gamification-bar .progress-container {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .gamification-bar .progress-container .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .gamification-bar .progress-container .progress-bar-gamification {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .gamification-bar .progress-container .progress-bar-gamification .fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .gamification-bar .badges-display {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .gamification-bar .badges-display .badge-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .gamification-bar .badges-display .badge-icon:hover {
+            transform: scale(1.2);
+            border-color: var(--accent);
+        }
+
+        .gamification-bar .badges-display .badge-icon.gold {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #f59e0b;
+        }
+
+        .gamification-bar .badges-display .badge-icon.silver {
+            background: rgba(148, 163, 184, 0.2);
+            border-color: #94a3b8;
+        }
+
+        .gamification-bar .badges-display .badge-icon.bronze {
+            background: rgba(180, 83, 9, 0.2);
+            border-color: #b45309;
+        }
+
+        .gamification-bar .badges-display .badge-icon.purple {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+        }
+
+        .gamification-bar .badges-display .badge-icon:last-child {
+            cursor: pointer;
+        }
+
+        /* ============ CONTENEDOR DE PÁGINAS ============ */
+        .page-content {
+            animation: fadeInPage 0.4s ease;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============ STATS CARDS ============ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .stat-card.blue::before { background: var(--accent); }
+        .stat-card.green::before { background: var(--success); }
+        .stat-card.yellow::before { background: var(--warning); }
+        .stat-card.red::before { background: var(--danger); }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .stat-card .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .stat-top .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .stat-card .stat-top .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
+        .stat-card .stat-top .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .stat-card .stat-top .stat-icon.yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .stat-card .stat-top .stat-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .stat-card .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-card .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ============ CHARTS ============ */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .chart-card:hover {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .chart-card .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card .chart-header h6 {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chart-card canvas {
+            max-height: 250px;
+        }
+
+        /* ============ TABLA ============ */
+        .table-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .table-card .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .table-card .table-header h6 {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .table-card .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-card table th {
+            text-align: left;
+            padding: 0.8rem 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .table-card table td {
+            padding: 0.8rem 0.5rem;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+
+        .table-card table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .status-badge.active { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .status-badge.riesgo { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .status-badge.abandono { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: white;
+        }
+
+        .user-avatar.blue { background: var(--accent); }
+        .user-avatar.green { background: var(--success); }
+        .user-avatar.yellow { background: var(--warning); }
+        .user-avatar.red { background: var(--danger); }
+        .user-avatar.purple { background: #8b5cf6; }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-cell .name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .user-cell .email {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* ============ PÁGINAS ESPECÍFICAS ============ */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h3 {
+            font-weight: 800;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h5 {
+            color: white;
+            font-weight: 700;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .action-card i {
+            font-size: 2rem;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card h6 {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .action-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* ============ CHAT ============ */
+        .chat-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 300px;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .chat-message {
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.6rem;
+            max-width: 85%;
+            font-size: 0.9rem;
+            animation: fadeInPage 0.3s ease;
+        }
+
+        .chat-message.user {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--text-light);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.bot {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-light);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-group input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .chat-input-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .chat-input-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chat-input-group button {
+            padding: 0.6rem 1.2rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .chat-input-group button:hover {
+            background: var(--accent-light);
+            transform: scale(1.02);
+        }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item .step {
+            position: absolute;
+            left: -2rem;
+            top: 0;
+            width: 1rem;
+            height: 1rem;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .timeline-item .step::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .timeline-item h6 {
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-item p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* ============ BECA CARD ============ */
+        .beca-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.3s;
+        }
+
+        .beca-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .beca-card .beca-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-light);
+            margin-bottom: 1rem;
+        }
+
+        .beca-card .beca-monto {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--success);
+        }
+
+        .beca-card .beca-entity {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .beca-card .beca-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        .beca-card .beca-tags span {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* ============ BOTONES ============ */
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-primary-custom:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .topbar-left .toggle-btn {
+                display: block;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stat-card .stat-number {
+                font-size: 1.6rem;
+            }
+            .topbar-right .search-box input {
+                width: 100px;
+            }
+            .gamification-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+            }
+            .gamification-bar .level-badge {
+                justify-content: center;
+            }
+            .gamification-bar .points-display {
+                justify-content: center;
+            }
+            .gamification-bar .badges-display {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .topbar-right {
+                justify-content: space-between;
+            }
+        }
+
+        /* ============ MODO CLARO ============ */
+        body.light-mode {
+            --primary: #f8fafc;
+            --secondary: #e2e8f0;
+            --text-light: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body.light-mode .sidebar {
+            background: rgba(255, 255, 255, 0.98);
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+
+        body.light-mode .sidebar-brand a {
+            color: #0f172a;
+        }
+
+        body.light-mode .sidebar-menu a {
+            color: #64748b;
+        }
+
+        body.light-mode .sidebar-menu a:hover {
+            background: rgba(0,0,0,0.05);
+            color: #0f172a;
+        }
+
+        body.light-mode .sidebar-menu a.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #0f172a;
+        }
+
+        body.light-mode .sidebar-footer .user-card .user-info h6 {
+            color: #0f172a;
+        }
+
+        body.light-mode .sidebar-footer .user-card .user-info span {
+            color: #64748b;
+        }
+
+        body.light-mode .stat-card,
+        body.light-mode .chart-card,
+        body.light-mode .table-card,
+        body.light-mode .action-card,
+        body.light-mode .beca-card {
+            background: rgba(255,255,255,0.8);
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .stat-card .stat-label,
+        body.light-mode .text-muted {
+            color: #64748b;
+        }
+
+        body.light-mode .stat-card .stat-number {
+            color: #0f172a;
+        }
+
+        body.light-mode .topbar-left h4 {
+            color: #0f172a;
+        }
+
+        body.light-mode .topbar-right .search-box {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .topbar-right .search-box input {
+            color: #0f172a;
+        }
+
+        body.light-mode .topbar-right .search-box input::placeholder {
+            color: #94a3b8;
+        }
+
+        body.light-mode .topbar-right .notification-btn {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.06);
+            color: #64748b;
+        }
+
+        body.light-mode .table-card table th {
+            color: #64748b;
+            border-bottom-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .table-card table td {
+            color: #0f172a;
+            border-bottom-color: rgba(0,0,0,0.03);
+        }
+
+        body.light-mode .table-card table tr:hover td {
+            background: rgba(0,0,0,0.02);
+        }
+
+        body.light-mode .chat-container {
+            background: rgba(0,0,0,0.05);
+        }
+
+        body.light-mode .chat-message.bot {
+            background: rgba(0,0,0,0.05);
+            color: #0f172a;
+        }
+
+        body.light-mode .chat-input-group input {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.08);
+            color: #0f172a;
+        }
+
+        body.light-mode .chat-input-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        body.light-mode .status-badge.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+        }
+
+        body.light-mode .status-badge.riesgo {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+        }
+
+        body.light-mode .status-badge.abandono {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        body.light-mode .accordion-item {
+            background: transparent;
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .accordion-button {
+            color: #0f172a;
+            background: transparent;
+        }
+
+        body.light-mode .accordion-button::after {
+            filter: invert(1);
+        }
+
+        body.light-mode .accordion-body {
+            color: #64748b;
+        }
+
+        body.light-mode .action-card {
+            background: rgba(255,255,255,0.8);
+        }
+
+        body.light-mode .action-card p {
+            color: #64748b;
+        }
+
+        body.light-mode .beca-card {
+            background: rgba(255,255,255,0.8);
+        }
+
+        body.light-mode .beca-card .beca-entity {
+            color: #64748b;
+        }
+
+        body.light-mode .beca-card .beca-tags span {
+            background: rgba(0,0,0,0.05);
+            color: #64748b;
+        }
+
+        body.light-mode .gamification-bar {
+            background: rgba(255,255,255,0.8);
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .gamification-bar .level-info .level-label {
+            color: #64748b;
+        }
+
+        body.light-mode .gamification-bar .points-label {
+            color: #64748b;
+        }
+
+        body.light-mode .gamification-bar .progress-container .progress-label {
+            color: #64748b;
+        }
+
+        body.light-mode .gamification-bar .badges-display .badge-icon {
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        body.light-mode .theme-toggle {
+            background: rgba(0,0,0,0.05);
+            border-color: rgba(0,0,0,0.06);
+        }
+
+        body.light-mode .theme-toggle i {
+            color: #64748b;
+        }
+
+        body.light-mode .notification-btn .dot {
+            border-color: #f8fafc;
+        }
+
+        body.light-mode .timeline::before {
+            background: rgba(0,0,0,0.1);
+        }
+
+        body.light-mode .timeline-item .step {
+            border-color: #f8fafc;
+        }
+
+        body.light-mode .btn-outline-secondary {
+            color: #64748b !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+
+        body.light-mode .btn-outline-secondary:hover {
+            background: rgba(0,0,0,0.05) !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============ SIDEBAR ============ -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <a href="/">
+            <i class="fas fa-graduation-cap"></i>
+            ALLIN <span>YACHAY</span>
+        </a>
+    </div>
+    <div class="sidebar-menu">
+        <div class="menu-label">Principal</div>
+        <a class="active" data-page="dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a data-page="estudiantes">
+            <i class="fas fa-users"></i> Estudiantes
+            <span class="badge-sidebar">+12</span>
+        </a>
+        <a data-page="predicciones">
+            <i class="fas fa-chart-line"></i> Predicciones
+        </a>
+        <a data-page="tutor">
+            <i class="fas fa-robot"></i> Tutor IA
+        </a>
+
+        <div class="menu-label">Gestión</div>
+        <a data-page="becas">
+            <i class="fas fa-gift"></i> Becas
+        </a>
+        <a data-page="cursos">
+            <i class="fas fa-book"></i> Cursos
+        </a>
+        <a data-page="calendario">
+            <i class="fas fa-calendar"></i> Calendario
+        </a>
+
+        <div class="menu-label">Sistema</div>
+        <a data-page="configuracion">
+            <i class="fas fa-cog"></i> Configuración
+        </a>
+        <a data-page="ayuda">
+            <i class="fas fa-question-circle"></i> Ayuda
+        </a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="user-card">
+            <img src="https://ui-avatars.com/api/?name=Renzo+Quispe&background=3b82f6&color=fff&size=40" width="40" height="40" alt="User">
+            <div class="user-info">
+                <h6>Renzo Quispe</h6>
+                <span><span class="online-dot"></span> En línea</span>
+            </div>
+            <a href="#" style="color: var(--text-muted);" onclick="cerrarSesion()"><i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</nav>
+
+<!-- ============ MAIN CONTENT ============ -->
+<div class="main-content" id="mainContent">
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <button class="toggle-btn" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h4 id="pageTitle">
+                Dashboard <small>· Vista general</small>
+            </h4>
+        </div>
+        <div class="topbar-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar..." id="searchInput">
+            </div>
+            <div class="notification-btn" onclick="verNotificaciones()">
+                <i class="fas fa-bell"></i>
+                <span class="dot"></span>
+            </div>
+            <!-- Theme Toggle -->
+            <div class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                <i class="fas fa-sun"></i>
+                <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                </div>
+                <i class="fas fa-moon"></i>
+            </div>
+            <img src="https://ui-avatars.com/api/?name=Renzo+Quispe&background=3b82f6&color=fff&size=36" width="36" height="36" style="border-radius: 50%; border: 2px solid rgba(255,255,255,0.1);">
+        </div>
+    </div>
+
+    <!-- ============ GAMIFICATION BAR ============ -->
+    <div class="gamification-bar" id="gamificationBar">
+        <div class="level-badge">
+            <div class="level-icon">🏆</div>
+            <div class="level-info">
+                <div class="level-number">Nivel 7</div>
+                <div class="level-label">Estudiante Élite</div>
+            </div>
+        </div>
+        <div class="points-display">
+            <i class="fas fa-star"></i>
+            <span class="points-number" id="puntosUsuario">2,450</span>
+            <span class="points-label">puntos</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>Progreso al siguiente nivel</span>
+                <span id="progresoNivel">65%</span>
+            </div>
+            <div class="progress-bar-gamification">
+                <div class="fill" id="barraProgreso" style="width: 65%;"></div>
+            </div>
+        </div>
+        <div class="badges-display">
+            <div class="badge-icon gold" title="Medalla de Oro - Excelencia">🥇</div>
+            <div class="badge-icon silver" title="Medalla de Plata - Esfuerzo">🥈</div>
+            <div class="badge-icon purple" title="Insignia IA - 100 consultas">🤖</div>
+            <div class="badge-icon bronze" title="Insignia Comunidad">👥</div>
+            <div class="badge-icon" style="background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); cursor: pointer;" onclick="verInsignias()">
+                <span style="font-size: 0.7rem;">+2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ CONTENEDOR DE PÁGINAS ============ -->
+    <div id="pageContainer">
+        <!-- El contenido se carga dinámicamente con JavaScript -->
+    </div>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let permanenciaChart, riesgoChart;
+
+    // ============ SIDEBAR TOGGLE ============
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    }
+
+    toggleBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    // ============ MODO OSCURO/CLARO ============
+    function toggleTheme() {
+        const body = document.body;
+        const isLight = body.classList.toggle('light-mode');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        
+        // Animación de transición
+        body.style.transition = 'all 0.3s ease';
+        
+        // Actualizar iconos
+        const toggle = document.querySelector('.theme-toggle');
+        if (toggle) {
+            const sunIcon = toggle.querySelector('.fa-sun');
+            const moonIcon = toggle.querySelector('.fa-moon');
+            if (isLight) {
+                sunIcon.style.color = '#f59e0b';
+                moonIcon.style.color = '#94a3b8';
+            } else {
+                sunIcon.style.color = '#94a3b8';
+                moonIcon.style.color = '#3b82f6';
+            }
+        }
+    }
+
+    function cargarTema() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            const sunIcon = document.querySelector('.theme-toggle .fa-sun');
+            const moonIcon = document.querySelector('.theme-toggle .fa-moon');
+            if (sunIcon && moonIcon) {
+                sunIcon.style.color = '#f59e0b';
+                moonIcon.style.color = '#94a3b8';
+            }
+        }
+    }
+
+    // ============ GAMIFICACIÓN ============
+    function ganarPuntos(cantidad, accion) {
+        const puntosElement = document.getElementById('puntosUsuario');
+        if (!puntosElement) return;
+        
+        const puntosActuales = parseInt(puntosElement.textContent.replace(/,/g, ''));
+        const nuevosPuntos = puntosActuales + cantidad;
+        puntosElement.textContent = nuevosPuntos.toLocaleString();
+        
+        // Animación de puntos
+        puntosElement.style.transform = 'scale(1.3)';
+        puntosElement.style.color = '#f59e0b';
+        setTimeout(() => {
+            puntosElement.style.transform = 'scale(1)';
+            puntosElement.style.color = '';
+        }, 500);
+        
+        // Actualizar barra de progreso
+        const progreso = document.getElementById('progresoNivel');
+        const barra = document.getElementById('barraProgreso');
+        if (progreso && barra) {
+            let nuevoProgreso = parseInt(progreso.textContent) + (cantidad / 10);
+            if (nuevoProgreso > 100) {
+                nuevoProgreso = 0;
+                // Subir de nivel
+                const levelNumber = document.querySelector('.level-number');
+                if (levelNumber) {
+                    const nivelActual = parseInt(levelNumber.textContent.replace('Nivel ', ''));
+                    levelNumber.textContent = `Nivel ${nivelActual + 1}`;
+                    // Cambiar título
+                    const levelLabel = document.querySelector('.level-label');
+                    const labels = ['Novato', 'Aprendiz', 'Estudiante', 'Avanzado', 'Experto', 'Maestro', 'Élite', 'Leyenda'];
+                    const nuevoLabel = labels[(nivelActual + 1) % labels.length] || 'Leyenda';
+                    if (levelLabel) levelLabel.textContent = nuevoLabel;
+                    
+                    // Notificación de subida de nivel
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 ¡Subiste de Nivel!',
+                        text: `¡Ahora eres ${nuevoLabel}!`,
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#3b82f6',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            }
+            progreso.textContent = `${Math.min(nuevoProgreso, 100)}%`;
+            barra.style.width = `${Math.min(nuevoProgreso, 100)}%`;
+        }
+    }
+
+    function registrarAccion(tipo) {
+        const puntos = {
+            'pregunta': 5,
+            'estudio': 10,
+            'examen': 25,
+            'curso_completado': 50,
+            'beca_postulada': 30,
+            'grupo_creado': 15
+        };
+        
+        if (puntos[tipo]) {
+            ganarPuntos(puntos[tipo], tipo);
+        }
+    }
+
+    function verInsignias() {
+        Swal.fire({
+            title: '🏅 Tus Insignias',
+            html: `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0.5rem;">
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                        <div style="font-size: 2.5rem;">🥇</div>
+                        <div style="font-size: 0.8rem; font-weight: 700;">Excelencia</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">Promedio > 18</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                        <div style="font-size: 2.5rem;">🥈</div>
+                        <div style="font-size: 0.8rem; font-weight: 700;">Esfuerzo</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">100 horas de estudio</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                        <div style="font-size: 2.5rem;">🤖</div>
+                        <div style="font-size: 0.8rem; font-weight: 700;">IA Master</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">100 consultas al tutor</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                        <div style="font-size: 2.5rem;">👥</div>
+                        <div style="font-size: 0.8rem; font-weight: 700;">Comunidad</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">10 grupos creados</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                        <div style="font-size: 2.5rem;">📚</div>
+                        <div style="font-size: 0.8rem; font-weight: 700;">Bibliófilo</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">50 recursos guardados</div>
+                    </div>
+                    <div style="text-align: center; background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px; border: 2px dashed rgba(255,255,255,0.1);">
+                        <div style="font-size: 2rem; opacity: 0.3;">🔒</div>
+                        <div style="font-size: 0.8rem; font-weight: 700; opacity: 0.5;">Próxima</div>
+                        <div style="font-size: 0.65rem; color: #94a3b8;">Descubre más</div>
+                    </div>
+                </div>
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: '¡Genial!',
+            width: 500
+        });
+    }
+
+    // ============ NAVEGACIÓN ============
+    const pages = {
+        dashboard: 'dashboard',
+        estudiantes: 'estudiantes',
+        predicciones: 'predicciones',
+        tutor: 'tutor',
+        becas: 'becas',
+        cursos: 'cursos',
+        calendario: 'calendario',
+        configuracion: 'configuracion',
+        ayuda: 'ayuda'
+    };
+
+    const pageTitles = {
+        dashboard: 'Dashboard <small>· Vista general</small>',
+        estudiantes: 'Estudiantes <small>· Gestión académica</small>',
+        predicciones: 'Predicciones <small>· Análisis de riesgo</small>',
+        tutor: 'Tutor IA <small>· Asistente académico</small>',
+        becas: 'Becas <small>· Oportunidades educativas</small>',
+        cursos: 'Cursos <small>· Catálogo académico</small>',
+        calendario: 'Calendario <small>· Eventos y fechas</small>',
+        configuracion: 'Configuración <small>· Ajustes del sistema</small>',
+        ayuda: 'Ayuda <small>· Centro de soporte</small>'
+    };
+
+    document.querySelectorAll('.sidebar-menu a[data-page]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.getAttribute('data-page');
+            navegarA(page);
+        });
+    });
+
+    function navegarA(page) {
+        document.querySelectorAll('.sidebar-menu a[data-page]').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.sidebar-menu a[data-page="${page}"]`)?.classList.add('active');
+        document.getElementById('pageTitle').innerHTML = pageTitles[page] || page;
+
+        const container = document.getElementById('pageContainer');
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="text-muted mt-2">Cargando...</p></div>';
+
+        setTimeout(() => {
+            const contenido = obtenerContenidoPagina(page);
+            container.innerHTML = contenido;
+            inicializarPagina(page);
+        }, 300);
+
+        if (window.innerWidth <= 768) toggleSidebar();
+    }
+
+    // ============ OBTENER CONTENIDO DE CADA PÁGINA ============
+    function obtenerContenidoPagina(page) {
+        const funciones = {
+            dashboard: renderDashboard,
+            estudiantes: renderEstudiantes,
+            predicciones: renderPredicciones,
+            tutor: renderTutor,
+            becas: renderBecas,
+            cursos: renderCursos,
+            calendario: renderCalendario,
+            configuracion: renderConfiguracion,
+            ayuda: renderAyuda
+        };
+        return funciones[page] ? funciones[page]() : renderNotFound();
+    }
+
+    // ============ PÁGINA: DASHBOARD ============
+    function renderDashboard() {
+        return `
+            <div class="page-content">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card blue">
+                        <div class="stat-top">
+                            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="stat-number" id="totalEstudiantes">0</div>
+                        <div class="stat-label">Total Estudiantes</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-top">
+                            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <div class="stat-number" id="estudiantesActivos">0</div>
+                        <div class="stat-label">Activos</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-top">
+                            <div class="stat-icon yellow"><i class="fas fa-exclamation-triangle"></i></div>
+                        </div>
+                        <div class="stat-number" id="estudiantesRiesgo">0</div>
+                        <div class="stat-label">En Riesgo</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-top">
+                            <div class="stat-icon red"><i class="fas fa-user-slash"></i></div>
+                        </div>
+                        <div class="stat-number" id="abandonados">0</div>
+                        <div class="stat-label">Abandonaron</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h6><i class="fas fa-chart-area me-2" style="color: var(--accent);"></i>Tasa de Permanencia</h6>
+                        </div>
+                        <canvas id="permanenciaChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h6><i class="fas fa-pie-chart me-2" style="color: var(--success);"></i>Distribución de Riesgo</h6>
+                        </div>
+                        <canvas id="riesgoChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h6><i class="fas fa-users me-2" style="color: var(--accent);"></i>Últimos Estudiantes</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Carrera</th>
+                                    <th>Semestre</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="estudiantesTable">
+                                <tr><td colspan="4" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: ESTUDIANTES ============
+    function renderEstudiantes() {
+        return `
+            <div class="page-content">
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>👨‍🎓 Gestión de Estudiantes</h3>
+                        <p>Administra todos los estudiantes registrados en la plataforma</p>
+                    </div>
+                    <button class="btn btn-primary-custom" onclick="agregarEstudiante()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Estudiante
+                    </button>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h6>Lista de Estudiantes</h6>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white; width: auto;" id="filtroEstado">
+                                <option value="todos">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="riesgo">En Riesgo</option>
+                                <option value="abandono">Abandonaron</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Carrera</th>
+                                    <th>Semestre</th>
+                                    <th>Riesgo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="estudiantesTableFull">
+                                <tr><td colspan="6" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: PREDICCIONES ============
+    function renderPredicciones() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>📊 Predicciones de Riesgo</h3>
+                    <p>Análisis predictivo de deserción estudiantil</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="stat-card blue">
+                            <div class="stat-top">
+                                <div class="stat-icon blue"><i class="fas fa-shield-alt"></i></div>
+                            </div>
+                            <div class="stat-number" id="predBajo">0</div>
+                            <div class="stat-label">Bajo Riesgo</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="stat-card yellow">
+                            <div class="stat-top">
+                                <div class="stat-icon yellow"><i class="fas fa-exclamation-triangle"></i></div>
+                            </div>
+                            <div class="stat-number" id="predMedio">0</div>
+                            <div class="stat-label">Riesgo Medio</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="stat-card red">
+                            <div class="stat-top">
+                                <div class="stat-icon red"><i class="fas fa-skull-crossbones"></i></div>
+                            </div>
+                            <div class="stat-number" id="predAlto">0</div>
+                            <div class="stat-label">Alto Riesgo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card mt-4">
+                    <div class="table-header">
+                        <h6>Estudiantes en Seguimiento</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Nivel de Riesgo</th>
+                                    <th>Probabilidad</th>
+                                    <th>Recomendaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prediccionesTable">
+                                <tr><td colspan="4" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: TUTOR IA ============
+    function renderTutor() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>🤖 Tutor IA</h3>
+                    <p>Asistente académico con inteligencia artificial</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="chart-card" style="padding: 2rem;">
+                            <h5 class="mb-3">
+                                <i class="fas fa-robot text-primary me-2"></i>
+                                Conversación con la IA
+                            </h5>
+                            <div class="chat-container" id="chatMessagesTutor">
+                                <div class="chat-message bot">
+                                    <i class="fas fa-robot me-2"></i>
+                                    ¡Hola! Soy tu tutor IA. Pregúntame sobre cualquier tema académico.
+                                </div>
+                            </div>
+                            <div class="chat-input-group">
+                                <input type="text" id="preguntaInputTutor" placeholder="Escribe tu pregunta..." />
+                                <button id="enviarPreguntaTutorBtn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="mt-2 d-flex gap-2 flex-wrap">
+                                <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaTutor('¿Cómo resuelvo derivadas?')">Derivadas</button>
+                                <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaTutor('¿Qué es un array en Python?')">Python</button>
+                                <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaTutor('Explica la segunda ley de Newton')">Física</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="chart-card" style="padding: 2rem;">
+                            <h5 class="mb-3">
+                                <i class="fas fa-history me-2" style="color: var(--warning);"></i>
+                                Historial de Conversaciones
+                            </h5>
+                            <div id="historialTutor">
+                                <div class="text-center text-muted py-3">
+                                    <i class="fas fa-comments fa-2x mb-2" style="opacity: 0.3;"></i>
+                                    <p>No hay conversaciones recientes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: BECAS ============
+    function renderBecas() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>🎓 Becas Disponibles</h3>
+                    <p>Oportunidades educativas para tu futuro</p>
+                </div>
+
+                <div class="row g-4" id="becasGridFull">
+                    <div class="col-12 text-center text-muted py-4">Cargando becas...</div>
+                </div>
+
+                <div class="table-card mt-4">
+                    <div class="table-header">
+                        <h6>Todas las Becas</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Entidad</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="becasTable">
+                                <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: CURSOS ============
+    function renderCursos() {
+        return `
+            <div class="page-content">
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>📚 Catálogo de Cursos</h3>
+                        <p>Explora todos los cursos disponibles</p>
+                    </div>
+                    <button class="btn btn-primary-custom" onclick="agregarCurso()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Curso
+                    </button>
+                </div>
+
+                <div class="action-grid mb-4">
+                    <div class="action-card" onclick="verCursos('matematicas')">
+                        <i class="fas fa-calculator"></i>
+                        <h6>Matemáticas</h6>
+                        <p>8 cursos</p>
+                    </div>
+                    <div class="action-card" onclick="verCursos('programacion')">
+                        <i class="fas fa-code"></i>
+                        <h6>Programación</h6>
+                        <p>6 cursos</p>
+                    </div>
+                    <div class="action-card" onclick="verCursos('fisica')">
+                        <i class="fas fa-atom"></i>
+                        <h6>Física</h6>
+                        <p>5 cursos</p>
+                    </div>
+                    <div class="action-card" onclick="verCursos('comunicacion')">
+                        <i class="fas fa-pencil-alt"></i>
+                        <h6>Comunicación</h6>
+                        <p>4 cursos</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h6>Lista de Cursos</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Área</th>
+                                    <th>Créditos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cursosTable">
+                                <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: CALENDARIO ============
+    function renderCalendario() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>📅 Calendario Académico</h3>
+                    <p>Eventos, fechas importantes y plazos</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="chart-card" style="min-height: 400px;">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-calendar-alt me-2" style="color: var(--accent);"></i>Eventos del Mes</h6>
+                            </div>
+                            <div id="calendarioEventos">
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <div class="step">15 de Junio</div>
+                                        <h6>📝 Inicio de Inscripciones</h6>
+                                        <p>Periodo de inscripción para el siguiente ciclo</p>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="step">20 de Junio</div>
+                                        <h6>📊 Entrega de Notas</h6>
+                                        <p>Publicación de resultados del ciclo anterior</p>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="step">25 de Junio</div>
+                                        <h6>🎓 Seminario de Orientación</h6>
+                                        <p>Charlas sobre oportunidades académicas</p>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="step">30 de Junio</div>
+                                        <h6>📚 Cierre de Plazo</h6>
+                                        <p>Último día para postular a becas</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-tasks me-2" style="color: var(--success);"></i>Próximos Plazos</h6>
+                            </div>
+                            <div id="proximosPlazos">
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <div>
+                                        <div class="fw-bold">Entrega de Trabajos</div>
+                                        <small class="text-muted">Cálculo I</small>
+                                    </div>
+                                    <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: var(--danger);">2 días</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.05) !important;">
+                                    <div>
+                                        <div class="fw-bold">Examen Parcial</div>
+                                        <small class="text-muted">Programación I</small>
+                                    </div>
+                                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: var(--warning);">5 días</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <div class="fw-bold">Postulación Becas</div>
+                                        <small class="text-muted">Beca 18</small>
+                                    </div>
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success);">12 días</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: CONFIGURACIÓN ============
+    function renderConfiguracion() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>⚙️ Configuración del Sistema</h3>
+                    <p>Personaliza tu experiencia en ALLIN YACHAY</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="chart-card">
+                            <h6 class="mb-3"><i class="fas fa-user me-2" style="color: var(--accent);"></i>Perfil</h6>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Nombre</label>
+                                <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white;" value="Renzo Quispe Mamani">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Correo</label>
+                                <input type="email" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white;" value="renzo@allinyachay.pe">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Universidad</label>
+                                <input type="text" class="form-control" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white;" value="UNSAAC - Cusco">
+                            </div>
+                            <button class="btn btn-primary-custom" onclick="guardarConfiguracion()">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-card">
+                            <h6 class="mb-3"><i class="fas fa-bell me-2" style="color: var(--warning);"></i>Preferencias</h6>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notificacionesEmail" checked style="background-color: var(--accent); border-color: var(--accent);">
+                                <label class="form-check-label" for="notificacionesEmail">Notificaciones por correo</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="recordatorios" checked style="background-color: var(--accent); border-color: var(--accent);">
+                                <label class="form-check-label" for="recordatorios">Recordatorios de plazos</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="modoOscuro" checked style="background-color: var(--accent); border-color: var(--accent);">
+                                <label class="form-check-label" for="modoOscuro">Modo oscuro</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="iaAsistente" checked style="background-color: var(--accent); border-color: var(--accent);">
+                                <label class="form-check-label" for="iaAsistente">Asistente IA activo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ PÁGINA: AYUDA ============
+    function renderAyuda() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>❓ Centro de Ayuda</h3>
+                    <p>Encuentra respuestas a tus preguntas</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="action-card" onclick="ayuda('preguntas')">
+                            <i class="fas fa-question-circle"></i>
+                            <h6>Preguntas Frecuentes</h6>
+                            <p>Las dudas más comunes</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="action-card" onclick="ayuda('tutoriales')">
+                            <i class="fas fa-video"></i>
+                            <h6>Tutoriales</h6>
+                            <p>Guías paso a paso</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="action-card" onclick="ayuda('contacto')">
+                            <i class="fas fa-headset"></i>
+                            <h6>Soporte</h6>
+                            <p>Contacta con nuestro equipo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card mt-4">
+                    <div class="table-header">
+                        <h6>Preguntas Frecuentes</h6>
+                    </div>
+                    <div class="accordion" id="faqAccordion" style="--bs-accordion-bg: transparent; --bs-accordion-color: white; --bs-accordion-btn-color: white; --bs-accordion-border-color: rgba(255,255,255,0.06);">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" style="background: transparent; color: white;">
+                                    ¿Cómo funciona la IA predictiva?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body text-muted">
+                                    La IA analiza datos como notas, asistencia, participación y estado emocional para generar un nivel de riesgo (Bajo, Medio, Alto) y recomendar acciones preventivas.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" style="background: transparent; color: white;">
+                                    ¿Cómo accedo al soporte en quechua?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body text-muted">
+                                    El soporte en quechua está disponible en el módulo de Tutor IA. Puedes seleccionar el idioma en la configuración de tu perfil.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="background: transparent; color: white;">
+                                    ¿Cómo puedo postular a becas?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body text-muted">
+                                    En el módulo de Becas encontrarás todas las convocatorias disponibles. La IA te recomienda las que mejor se adaptan a tu perfil académico.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderNotFound() {
+        return `
+            <div class="empty-state">
+                <i class="fas fa-file"></i>
+                <h5>Página no encontrada</h5>
+                <p>El contenido que buscas no está disponible</p>
+            </div>
+        `;
+    }
+
+    // ============ INICIALIZAR PÁGINA ============
+    function inicializarPagina(page) {
+        if (page === 'dashboard') {
+            cargarDashboard();
+        } else if (page === 'estudiantes') {
+            cargarEstudiantesFull();
+        } else if (page === 'predicciones') {
+            cargarPredicciones();
+        } else if (page === 'tutor') {
+            inicializarTutor();
+        } else if (page === 'becas') {
+            cargarBecasFull();
+        } else if (page === 'cursos') {
+            cargarCursos();
+        }
+    }
+
+    // ============ FUNCIONES DE CARGA ============
+    async function cargarDashboard() {
+        try {
+            const res = await fetch(`${API_URL}/dashboard`);
+            const data = await res.json();
+            if (data.success) {
+                const d = data.data;
+                document.getElementById('totalEstudiantes').textContent = d.total_estudiantes || '0';
+                document.getElementById('estudiantesActivos').textContent = d.activos || '0';
+                document.getElementById('estudiantesRiesgo').textContent = d.en_riesgo || '0';
+                document.getElementById('abandonados').textContent = d.abandonaron || '0';
+                actualizarGraficos(d);
+                cargarEstudiantesTabla();
+            }
+        } catch {
+            document.getElementById('totalEstudiantes').textContent = '1,250';
+            document.getElementById('estudiantesActivos').textContent = '1,120';
+            document.getElementById('estudiantesRiesgo').textContent = '95';
+            document.getElementById('abandonados').textContent = '35';
+            actualizarGraficos({ predicciones: { bajo_riesgo: 720, riesgo_medio: 285, alto_riesgo: 95 } });
+            cargarEstudiantesTabla();
+        }
+    }
+
+    function actualizarGraficos(data) {
+        const ctx1 = document.getElementById('permanenciaChart')?.getContext('2d');
+        if (ctx1) {
+            if (permanenciaChart) permanenciaChart.destroy();
+            permanenciaChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                    datasets: [{
+                        label: 'Tasa de Permanencia',
+                        data: [78, 80, 82, 79, 83, 85, 84, 86, 88, 87, 89, 91],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#0f172a',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, min: 60, max: 100, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => v + '%' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        const ctx2 = document.getElementById('riesgoChart')?.getContext('2d');
+        if (ctx2) {
+            if (riesgoChart) riesgoChart.destroy();
+            const pred = data.predicciones || { bajo_riesgo: 720, riesgo_medio: 285, alto_riesgo: 95 };
+            riesgoChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bajo Riesgo', 'Riesgo Medio', 'Alto Riesgo'],
+                    datasets: [{
+                        data: [pred.bajo_riesgo || 720, pred.riesgo_medio || 285, pred.alto_riesgo || 95],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 16, usePointStyle: true } }
+                    }
+                }
+            });
+        }
+    }
+
+    async function cargarEstudiantesTabla() {
+        try {
+            const res = await fetch(`${API_URL}/estudiantes`);
+            const data = await res.json();
+            const tbody = document.getElementById('estudiantesTable');
+            if (data.success && data.data.length) {
+                const colores = ['blue', 'green', 'yellow', 'red', 'purple'];
+                tbody.innerHTML = data.data.slice(0, 5).map((e, i) => `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar ${colores[i % colores.length]}">${e.nombres.charAt(0)}${e.apellidos.charAt(0)}</div>
+                                <div>
+                                    <div class="name">${e.nombres} ${e.apellidos}</div>
+                                    <div class="email">${e.email || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${e.carrera || 'Sin asignar'}</td>
+                        <td>${e.semestre || 'N/A'}</td>
+                        <td><span class="status-badge ${e.estado === 'activo' ? 'active' : e.estado === 'riesgo' ? 'riesgo' : 'abandono'}">${e.estado || 'Activo'}</span></td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No hay estudiantes registrados</td></tr>`;
+            }
+        } catch {
+            const tbody = document.getElementById('estudiantesTable');
+            tbody.innerHTML = `
+                <tr><td><div class="user-cell"><div class="user-avatar blue">RQ</div><div><div class="name">Renzo Quispe</div><div class="email">renzo@allinyachay.pe</div></div></div></td><td>Ing. Sistemas</td><td>5</td><td><span class="status-badge active">Activo</span></td></tr>
+                <tr><td><div class="user-cell"><div class="user-avatar yellow">MC</div><div><div class="name">María Ccorahua</div><div class="email">maria@allinyachay.pe</div></div></div></td><td>Ing. Civil</td><td>3</td><td><span class="status-badge riesgo">Riesgo</span></td></tr>
+            `;
+        }
+    }
+
+    async function cargarEstudiantesFull() {
+        const tbody = document.getElementById('estudiantesTableFull');
+        if (!tbody) return;
+        try {
+            const res = await fetch(`${API_URL}/estudiantes`);
+            const data = await res.json();
+            if (data.success && data.data.length) {
+                const colores = ['blue', 'green', 'yellow', 'red', 'purple'];
+                tbody.innerHTML = data.data.map((e, i) => `
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar ${colores[i % colores.length]}">${e.nombres.charAt(0)}${e.apellidos.charAt(0)}</div>
+                                <div>
+                                    <div class="name">${e.nombres} ${e.apellidos}</div>
+                                    <div class="email">${e.email || ''}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${e.carrera || 'Sin asignar'}</td>
+                        <td>${e.semestre || 'N/A'}</td>
+                        <td><span class="status-badge ${e.estado === 'activo' ? 'active' : e.estado === 'riesgo' ? 'riesgo' : 'abandono'}">${e.estado || 'Desconocido'}</span></td>
+                        <td><span class="status-badge ${e.estado === 'activo' ? 'active' : e.estado === 'riesgo' ? 'riesgo' : 'abandono'}">${e.estado === 'activo' ? 'Activo' : e.estado === 'riesgo' ? 'En Riesgo' : 'Abandonó'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);" onclick="verEstudiante(${e.id})"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-warning" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);" onclick="editarEstudiante(${e.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);" onclick="eliminarEstudiante(${e.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay estudiantes registrados</td></tr>`;
+            }
+        } catch {
+            tbody.innerHTML = `
+                <tr><td><div class="user-cell"><div class="user-avatar blue">RQ</div><div><div class="name">Renzo Quispe</div><div class="email">renzo@allinyachay.pe</div></div></div></td><td>Ing. Sistemas</td><td>5</td><td><span class="status-badge active">Activo</span></td><td><span class="status-badge active">Activo</span></td><td><button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-eye"></i></button></td></tr>
+                <tr><td><div class="user-cell"><div class="user-avatar yellow">MC</div><div><div class="name">María Ccorahua</div><div class="email">maria@allinyachay.pe</div></div></div></td><td>Ing. Civil</td><td>3</td><td><span class="status-badge riesgo">Riesgo</span></td><td><span class="status-badge riesgo">En Riesgo</span></td><td><button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-eye"></i></button></td></tr>
+            `;
+        }
+    }
+
+    async function cargarPredicciones() {
+        try {
+            const res = await fetch(`${API_URL}/dashboard`);
+            const data = await res.json();
+            if (data.success) {
+                const pred = data.data.predicciones || { bajo_riesgo: 720, riesgo_medio: 285, alto_riesgo: 95 };
+                document.getElementById('predBajo').textContent = pred.bajo_riesgo || '0';
+                document.getElementById('predMedio').textContent = pred.riesgo_medio || '0';
+                document.getElementById('predAlto').textContent = pred.alto_riesgo || '0';
+            }
+        } catch {}
+        
+        const tbody = document.getElementById('prediccionesTable');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr><td><div class="user-cell"><div class="user-avatar green">RQ</div><div><div class="name">Renzo Quispe</div><div class="email">renzo@allinyachay.pe</div></div></div></td><td><span class="status-badge active">Bajo</span></td><td>12%</td><td>Mantener ritmo de estudio</td></tr>
+                <tr><td><div class="user-cell"><div class="user-avatar yellow">MC</div><div><div class="name">María Ccorahua</div><div class="email">maria@allinyachay.pe</div></div></div></td><td><span class="status-badge riesgo">Medio</span></td><td>45%</td><td>Reforzar Física, asistir a tutorías</td></tr>
+                <tr><td><div class="user-cell"><div class="user-avatar red">CH</div><div><div class="name">Carlos Huamaní</div><div class="email">carlos@allinyachay.pe</div></div></div></td><td><span class="status-badge abandono">Alto</span></td><td>78%</td><td>Intervención inmediata, apoyo psicológico</td></tr>
+            `;
+        }
+    }
+
+    function inicializarTutor() {
+        const chat = document.getElementById('chatMessagesTutor');
+        if (!chat) return;
+        chat.innerHTML = `<div class="chat-message bot"><i class="fas fa-robot me-2"></i>¡Hola! Soy tu tutor IA. Pregúntame sobre cualquier tema académico.</div>`;
+        
+        document.getElementById('enviarPreguntaTutorBtn').addEventListener('click', () => enviarPreguntaTutor());
+        document.getElementById('preguntaInputTutor').addEventListener('keypress', e => {
+            if (e.key === 'Enter') enviarPreguntaTutor();
+        });
+    }
+
+    async function enviarPreguntaTutor() {
+        const input = document.getElementById('preguntaInputTutor');
+        const chat = document.getElementById('chatMessagesTutor');
+        const pregunta = input.value.trim();
+        if (!pregunta) return;
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-message user';
+        userMsg.textContent = pregunta;
+        chat.appendChild(userMsg);
+        chat.scrollTop = chat.scrollHeight;
+        input.value = '';
+
+        const loading = document.createElement('div');
+        loading.className = 'chat-message bot';
+        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando...';
+        chat.appendChild(loading);
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+            const res = await fetch(`${API_URL}/tutor/preguntar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pregunta, curso: 'general', estudiante_id: 1 })
+            });
+            const data = await res.json();
+            loading.remove();
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-message bot';
+            botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${data.data?.respuesta || 'No entendí, intenta de nuevo.'}`;
+            chat.appendChild(botMsg);
+            chat.scrollTop = chat.scrollHeight;
+            
+            // Registra la acción de pregunta para gamificación
+            registrarAccion('pregunta');
+        } catch {
+            loading.remove();
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'chat-message bot';
+            errorMsg.innerHTML = '❌ Error al conectar con el servidor.';
+            chat.appendChild(errorMsg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+    }
+
+    function preguntaTutor(p) {
+        document.getElementById('preguntaInputTutor').value = p;
+        enviarPreguntaTutor();
+    }
+
+    async function cargarBecasFull() {
+        try {
+            const res = await fetch(`${API_URL}/becas/todas`);
+            const data = await res.json();
+            const grid = document.getElementById('becasGridFull');
+            const table = document.getElementById('becasTable');
+            
+            const becas = data.success ? data.data.becas : [
+                { nombre: 'Beca 18', entidad: 'PRONABEC', monto: 'S/ 20,000', tags: ['Nacional', 'Excelencia'] },
+                { nombre: 'Vocación Maestro', entidad: 'Minedu', monto: 'S/ 15,000', tags: ['Educación', 'Social'] },
+                { nombre: 'Líderes del Mañana', entidad: 'Fundación BBVA', monto: 'S/ 25,000', tags: ['Liderazgo', 'Privado'] }
+            ];
+            
+            grid.innerHTML = becas.map(b => `
+                <div class="col-lg-4 col-md-6">
+                    <div class="beca-card">
+                        <div class="beca-icon"><i class="fas fa-gift"></i></div>
+                        <h6>${b.nombre}</h6>
+                        <div class="beca-monto">${b.monto}</div>
+                        <div class="beca-entity">${b.entidad}</div>
+                        <div class="beca-tags">
+                            ${b.tags.map(t => `<span>${t}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            table.innerHTML = becas.map(b => `
+                <tr>
+                    <td><strong>${b.nombre}</strong></td>
+                    <td>${b.entidad}</td>
+                    <td>${b.monto}</td>
+                    <td><span class="status-badge active">Activa</span></td>
+                    <td><button class="btn btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularBeca('${b.nombre}')">Postular</button></td>
+                </tr>
+            `).join('');
+        } catch {
+            document.getElementById('becasGridFull').innerHTML = `
+                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Beca 18</h6><div class="beca-monto">S/ 20,000</div><div class="beca-entity">PRONABEC</div></div></div>
+                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Vocación Maestro</h6><div class="beca-monto">S/ 15,000</div><div class="beca-entity">Minedu</div></div></div>
+                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Líderes del Mañana</h6><div class="beca-monto">S/ 25,000</div><div class="beca-entity">Fundación BBVA</div></div></div>
+            `;
+        }
+    }
+
+    async function cargarCursos() {
+        const tbody = document.getElementById('cursosTable');
+        if (!tbody) return;
+        const cursos = [
+            { codigo: 'MAT101', nombre: 'Cálculo I', area: 'Matemáticas', creditos: 4 },
+            { codigo: 'MAT102', nombre: 'Cálculo II', area: 'Matemáticas', creditos: 4 },
+            { codigo: 'FIS101', nombre: 'Física I', area: 'Física', creditos: 4 },
+            { codigo: 'INF101', nombre: 'Programación I', area: 'Programación', creditos: 4 },
+            { codigo: 'INF201', nombre: 'Base de Datos', area: 'Programación', creditos: 4 }
+        ];
+        tbody.innerHTML = cursos.map(c => `
+            <tr>
+                <td><strong>${c.codigo}</strong></td>
+                <td>${c.nombre}</td>
+                <td><span class="status-badge active">${c.area}</span></td>
+                <td>${c.creditos}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-warning" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-edit"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ============ FUNCIONES DE ACCIONES ============
+    function agregarEstudiante() {
+        Swal.fire({
+            title: 'Nuevo Estudiante',
+            html: `
+                <input type="text" id="nombreEstudiante" class="swal2-input" placeholder="Nombres">
+                <input type="text" id="apellidoEstudiante" class="swal2-input" placeholder="Apellidos">
+                <input type="email" id="emailEstudiante" class="swal2-input" placeholder="Email">
+                <input type="text" id="carreraEstudiante" class="swal2-input" placeholder="Carrera">
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Registrar',
+            showCancelButton: true,
+            cancelButtonColor: '#ef4444',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                return {
+                    nombres: document.getElementById('nombreEstudiante').value,
+                    apellidos: document.getElementById('apellidoEstudiante').value,
+                    email: document.getElementById('emailEstudiante').value,
+                    carrera: document.getElementById('carreraEstudiante').value
+                };
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Estudiante Registrado',
+                    text: 'El estudiante ha sido agregado exitosamente',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                cargarEstudiantesFull();
+                registrarAccion('estudio');
+            }
+        });
+    }
+
+    function verEstudiante(id) {
+        Swal.fire({
+            icon: 'info',
+            title: '👨‍🎓 Detalles del Estudiante',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>ID:</strong> ${id}</p>
+                    <p><strong>Nombre:</strong> Renzo Quispe Mamani</p>
+                    <p><strong>Email:</strong> renzo@allinyachay.pe</p>
+                    <p><strong>Carrera:</strong> Ingeniería de Sistemas</p>
+                    <p><strong>Semestre:</strong> 5</p>
+                    <p><strong>Estado:</strong> <span class="status-badge active">Activo</span></p>
+                </div>
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Cerrar'
+        });
+    }
+
+    function editarEstudiante(id) {
+        Swal.fire({
+            title: 'Editar Estudiante',
+            html: `
+                <input type="text" class="swal2-input" value="Renzo" placeholder="Nombres">
+                <input type="text" class="swal2-input" value="Quispe Mamani" placeholder="Apellidos">
+                <input type="email" class="swal2-input" value="renzo@allinyachay.pe" placeholder="Email">
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Guardar Cambios',
+            showCancelButton: true,
+            cancelButtonColor: '#ef4444',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Cambios Guardados',
+                    text: 'El estudiante ha sido actualizado',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+    function eliminarEstudiante(id) {
+        Swal.fire({
+            icon: 'warning',
+            title: '¿Eliminar estudiante?',
+            text: 'Esta acción no se puede deshacer',
+            background: '#0f172a',
+            color: '#f8fafc',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Estudiante Eliminado',
+                    text: 'El estudiante ha sido eliminado',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                cargarEstudiantesFull();
+            }
+        });
+    }
+
+    function agregarCurso() {
+        Swal.fire({
+            title: 'Nuevo Curso',
+            html: `
+                <input type="text" id="codigoCurso" class="swal2-input" placeholder="Código (ej: MAT101)">
+                <input type="text" id="nombreCurso" class="swal2-input" placeholder="Nombre del Curso">
+                <input type="text" id="areaCurso" class="swal2-input" placeholder="Área (ej: Matemáticas)">
+                <input type="number" id="creditosCurso" class="swal2-input" placeholder="Créditos">
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Crear Curso',
+            showCancelButton: true,
+            cancelButtonColor: '#ef4444',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Curso Creado',
+                    text: 'El curso ha sido agregado exitosamente',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                registrarAccion('curso_completado');
+            }
+        });
+    }
+
+    function verCursos(area) {
+        Swal.fire({
+            icon: 'info',
+            title: `📚 Cursos de ${area.charAt(0).toUpperCase() + area.slice(1)}`,
+            html: `
+                <div style="text-align: left;">
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <strong>MAT101</strong> - Cálculo I
+                    </div>
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <strong>MAT102</strong> - Cálculo II
+                    </div>
+                    <div style="padding: 0.5rem 0;">
+                        <strong>MAT201</strong> - Álgebra Lineal
+                    </div>
+                </div>
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Cerrar'
+        });
+    }
+
+    function postularBeca(nombre) {
+        Swal.fire({
+            icon: 'success',
+            title: '🎓 Postulación Exitosa',
+            text: `Has postulado a ${nombre}. Recibirás notificaciones por correo.`,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: '¡Genial!'
+        });
+        registrarAccion('beca_postulada');
+    }
+
+    function guardarConfiguracion() {
+        Swal.fire({
+            icon: 'success',
+            title: '✅ Configuración Guardada',
+            text: 'Los cambios han sido aplicados exitosamente',
+            background: '#0f172a',
+            color: '#f8fafc',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
+    function ayuda(tipo) {
+        const titulos = {
+            'preguntas': '❓ Preguntas Frecuentes',
+            'tutoriales': '📹 Tutoriales Disponibles',
+            'contacto': '📞 Contactar Soporte'
+        };
+        const mensajes = {
+            'preguntas': 'Consulta nuestra base de conocimiento para resolver tus dudas.',
+            'tutoriales': 'Pronto añadiremos tutoriales en video para cada módulo.',
+            'contacto': 'Envía un correo a soporte@allinyachay.pe o llama al +51 984 123 456'
+        };
+        Swal.fire({
+            icon: 'info',
+            title: titulos[tipo] || 'Ayuda',
+            text: mensajes[tipo] || 'Estamos para ayudarte',
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Entendido'
+        });
+    }
+
+    function verNotificaciones() {
+        Swal.fire({
+            icon: 'info',
+            title: '🔔 Notificaciones',
+            html: `
+                <div style="text-align: left;">
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <strong>🔴 Nuevo riesgo detectado</strong>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">María Ccorahua - 65% de riesgo</p>
+                    </div>
+                    <div style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <strong>📊 Informe mensual</strong>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Tasa de permanencia: 85%</p>
+                    </div>
+                    <div style="padding: 0.5rem 0;">
+                        <strong>🎓 Nueva beca disponible</strong>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Beca 18 - Convocatoria 2024</p>
+                    </div>
+                </div>
+            `,
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Ver todas'
+        });
+    }
+
+    function cerrarSesion() {
+        Swal.fire({
+            icon: 'question',
+            title: '¿Cerrar sesión?',
+            text: '¿Estás seguro que quieres salir?',
+            background: '#0f172a',
+            color: '#f8fafc',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, salir',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.isConfirmed) {
+                window.location.href = '/';
+            }
+        });
+    }
+
+    // ============ BUSCADOR ============
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchInput')?.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#estudiantesTableFull tr, #estudiantesTable tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    });
+
+    // ============ KEYBOARD SHORTCUTS ============
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            toggleTheme();
+        }
+        if (e.altKey && e.key === 'g') {
+            e.preventDefault();
+            verInsignias();
+        }
+    });
+
+    // ============ INICIALIZAR ============
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarTema();
+        navegarA('dashboard');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALLIN YACHAY - Ecosistema Educativo Peruano</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- AOS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* ============ RESET ============ */
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            background: var(--primary);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .navbar-custom.scrolled {
+            background: rgba(15, 23, 42, 0.98);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+
+        .navbar-brand {
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+            color: white !important;
+        }
+
+        .navbar-brand i {
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
+        .navbar-brand span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-link.active {
+            color: white !important;
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-nav {
+            background: var(--accent-gradient);
+            color: white !important;
+            border: none;
+            padding: 0.5rem 1.5rem !important;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-nav:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* ============ HERO ============ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+            background: var(--primary);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            border-radius: 50%;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-light);
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title .highlight {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-title .highlight-2 {
+            color: var(--accent-light);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 550px;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.15);
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .hero-stats .stat-item {
+            text-align: left;
+        }
+
+        .hero-stats .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: white;
+            display: block;
+        }
+
+        .hero-stats .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ============ HERO VISUAL ============ */
+        .hero-visual {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-visual .orb {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            opacity: 0.08;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orb-float 6s ease-in-out infinite;
+        }
+
+        @keyframes orb-float {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .hero-visual .floating-icons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .floating-icons .icon-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .floating-icons .icon-card:hover {
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-5px);
+        }
+
+        .floating-icons .icon-card i {
+            font-size: 2.5rem;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .floating-icons .icon-card p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* ============ SECCIONES GENERALES ============ */
+        .section-padding {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title .highlight {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        /* ============ MÓDULOS ============ */
+        .module-card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 2rem;
+            transition: all 0.4s;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: all 0.4s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .module-card:hover::before {
+            opacity: 1;
+        }
+
+        .module-card .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.8rem;
+            color: var(--accent-light);
+            transition: all 0.3s;
+        }
+
+        .module-card:hover .icon-wrapper {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.1);
+        }
+
+        .module-card h5 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .module-card .badge-module {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+        }
+
+        .badge-module.blue { background: rgba(59, 130, 246, 0.15); color: var(--accent-light); }
+        .badge-module.green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-module.yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge-module.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .badge-module.purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+
+        /* ============ TESTIMONIOS ============ */
+        .testimonial-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 2rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .testimonial-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .testimonial-card .quote {
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .testimonial-card .text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonial-card .author img {
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .testimonial-card .author .name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .testimonial-card .author .role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ============ TIMELINE ============ */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.3rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--primary);
+        }
+
+        .timeline-item .step {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-light);
+            font-weight: 700;
+        }
+
+        .timeline-item h6 {
+            font-weight: 700;
+            margin: 0.3rem 0 0.2rem;
+        }
+
+        .timeline-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* ============ BECAS ============ */
+        .beca-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .beca-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .beca-card .beca-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-light);
+            margin-bottom: 1rem;
+        }
+
+        .beca-card h6 {
+            font-weight: 700;
+        }
+
+        .beca-card .beca-amount {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--success);
+        }
+
+        .beca-card .beca-entity {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .beca-card .beca-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+        }
+
+        .beca-card .beca-tags span {
+            background: rgba(255,255,255,0.05);
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* ============ NEWSLETTER ============ */
+        .newsletter-section {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 4rem 0;
+        }
+
+        .newsletter-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .newsletter-box h3 {
+            font-weight: 800;
+        }
+
+        .newsletter-box p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .newsletter-box .input-group-custom {
+            display: flex;
+            gap: 0.8rem;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .newsletter-box .input-group-custom input {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .newsletter-box .input-group-custom input:focus {
+            border-color: var(--accent);
+        }
+
+        .newsletter-box .input-group-custom input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .newsletter-box .input-group-custom button {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .newsletter-box .input-group-custom button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ============ DEMO ============ */
+        .demo-section {
+            background: rgba(255,255,255,0.02);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 5rem 0;
+        }
+
+        .demo-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 2rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .demo-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .chat-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 200px;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .chat-message {
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            max-width: 85%;
+            font-size: 0.9rem;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chat-message.user {
+            background: var(--accent-gradient);
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-message.bot {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-light);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-group input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 0.7rem 1rem;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input-group input:focus {
+            border-color: var(--accent);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .chat-input-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chat-input-group button {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .chat-input-group button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ============ PREDICCIÓN ============ */
+        .prediccion-result {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .prediccion-result .level {
+            font-size: 3rem;
+            font-weight: 900;
+        }
+
+        .prediccion-result .level.bajo { color: var(--success); }
+        .prediccion-result .level.medio { color: var(--warning); }
+        .prediccion-result .level.alto { color: var(--danger); }
+
+        .prediccion-result .progress-bar-custom {
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .prediccion-result .progress-bar-custom .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* ============ FOOTER ============ */
+        .footer {
+            background: rgba(0,0,0,0.3);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer h5, .footer h6 {
+            font-weight: 700;
+        }
+
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            transition: all 0.3s;
+            margin-right: 0.5rem;
+        }
+
+        .footer .social-links a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .footer .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            .hero-stats {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+            .hero-visual .orb {
+                width: 250px;
+                height: 250px;
+            }
+            .floating-icons {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .hero-buttons {
+                flex-direction: column;
+            }
+            .hero-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .hero-stats {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            .floating-icons {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.8rem;
+            }
+            .floating-icons .icon-card {
+                padding: 1rem;
+            }
+            .floating-icons .icon-card i {
+                font-size: 1.8rem;
+            }
+            .newsletter-box {
+                padding: 2rem 1.5rem;
+            }
+            .newsletter-box .input-group-custom {
+                flex-direction: column;
+                align-items: center;
+            }
+            .newsletter-box .input-group-custom input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand-lg navbar-custom" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-graduation-cap"></i>
+            ALLIN <span>YACHAY</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-1">
+                <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#modulos">Módulos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#testimonios">Testimonios</a></li>
+                <li class="nav-item"><a class="nav-link" href="#becas">Becas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#demo">Demo</a></li>
+                <li class="nav-item">
+                    <a class="btn btn-nav" href="/dashboard">
+                        <i class="fas fa-chart-pie me-2"></i>Dashboard
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="inicio">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 hero-content" data-aos="fade-right" data-aos-duration="1000">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket me-2"></i> Proyecto Innovación Educativa
+                </div>
+                <h1 class="hero-title">
+                    <span class="highlight">Ningún estudiante</span><br>
+                    <span class="highlight-2">queda atrás.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Plataforma peruana con inteligencia artificial que predice, previene 
+                    y reduce la deserción estudiantil con tutoría personalizada en español y quechua.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#demo" class="btn btn-primary-custom">
+                        <i class="fas fa-play-circle"></i> Explorar Demo
+                    </a>
+                    <a href="#modulos" class="btn btn-outline-custom">
+                        <i class="fas fa-cubes"></i> Ver Módulos
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-target="1250">0</span>
+                        <span class="stat-label">Estudiantes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number counter" data-target="85">0</span>
+                        <span class="stat-label">% Tasa de Permanencia</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Tutoría IA</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 hero-visual d-none d-lg-block" data-aos="fade-left" data-aos-duration="1000">
+                <div class="orb"></div>
+                <div class="floating-icons">
+                    <div class="icon-card">
+                        <i class="fas fa-brain"></i>
+                        <p>IA Predictiva</p>
+                    </div>
+                    <div class="icon-card">
+                        <i class="fas fa-robot"></i>
+                        <p>Tutor IA</p>
+                    </div>
+                    <div class="icon-card">
+                        <i class="fas fa-language"></i>
+                        <p>Quechua</p>
+                    </div>
+                    <div class="icon-card">
+                        <i class="fas fa-heart"></i>
+                        <p>Emocional</p>
+                    </div>
+                    <div class="icon-card">
+                        <i class="fas fa-user-tie"></i>
+                        <p>Mentor</p>
+                    </div>
+                    <div class="icon-card">
+                        <i class="fas fa-route"></i>
+                        <p>Vocacional</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ MÓDULOS ============ -->
+<section class="section-padding" id="modulos">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">
+                <span class="highlight">Ecosistema</span> de Módulos
+            </h2>
+            <p class="section-subtitle">
+                10 módulos integrados que trabajan juntos para garantizar la permanencia educativa
+            </p>
+        </div>
+        <div class="row g-4" id="modulosGrid">
+            <!-- Los módulos se cargan con JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ============ TESTIMONIOS ============ -->
+<section class="section-padding" id="testimonios" style="background: rgba(255,255,255,0.02);">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">
+                Lo que dicen <span class="highlight">nuestros estudiantes</span>
+            </h2>
+            <p class="section-subtitle">
+                Historias reales de estudiantes que encontraron su camino con ALLIN YACHAY
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card">
+                    <div class="quote">"</div>
+                    <p class="text">
+                        Gracias a ALLIN YACHAY pude entender matemáticas que antes me parecían imposibles. 
+                        El tutor IA me explicó paso a paso hasta que lo entendí.
+                    </p>
+                    <div class="author">
+                        <img src="https://ui-avatars.com/api/?name=Maria+Ccorahua&background=3b82f6&color=fff&size=48" width="48" height="48" alt="Maria">
+                        <div>
+                            <div class="name">María Ccorahua</div>
+                            <div class="role">Ingeniería Civil · UNSAAC</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card">
+                    <div class="quote">"</div>
+                    <p class="text">
+                        La predicción de riesgo me alertó a tiempo. Pude mejorar mi rendimiento 
+                        antes de que fuera demasiado tarde. ¡Increíble herramienta!
+                    </p>
+                    <div class="author">
+                        <img src="https://ui-avatars.com/api/?name=Carlos+Huamani&background=10b981&color=fff&size=48" width="48" height="48" alt="Carlos">
+                        <div>
+                            <div class="name">Carlos Huamaní</div>
+                            <div class="role">Medicina · UNMSM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card">
+                    <div class="quote">"</div>
+                    <p class="text">
+                        El soporte en quechua me hizo sentir incluida. Pude aprender física 
+                        en mi idioma materno y ahora soy una de las mejores de mi clase.
+                    </p>
+                    <div class="author">
+                        <img src="https://ui-avatars.com/api/?name=Ana+Huaman&background=8b5cf6&color=fff&size=48" width="48" height="48" alt="Ana">
+                        <div>
+                            <div class="name">Ana Huamán</div>
+                            <div class="role">Ingeniería Industrial · UNI</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ RUTA ACADÉMICA ============ -->
+<section class="section-padding" id="ruta">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="section-title">
+                    Tu <span class="highlight">ruta académica</span>
+                </h2>
+                <p class="text-muted" style="font-size: 1.05rem; line-height: 1.8;">
+                    Con ALLIN YACHAY tienes un mapa claro hacia tu graduación. 
+                    La IA te guía paso a paso, avisándote de obstáculos y oportunidades.
+                </p>
+                <div class="timeline mt-4">
+                    <div class="timeline-item">
+                        <div class="step">Paso 1</div>
+                        <h6>Evaluación Inicial</h6>
+                        <p>Analizamos tu nivel y establecemos tu punto de partida</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="step">Paso 2</div>
+                        <h6>Plan Personalizado</h6>
+                        <p>La IA diseña una ruta de estudio adaptada a ti</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="step">Paso 3</div>
+                        <h6>Seguimiento Continuo</h6>
+                        <p>Monitoreamos tu progreso y ajustamos el plan en tiempo real</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="step">Paso 4</div>
+                        <h6>¡Graduación!</h6>
+                        <p>Llegas a la meta con el apoyo constante de la IA</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left">
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 2rem; text-align: center;">
+                    <i class="fas fa-graduation-cap" style="font-size: 5rem; color: var(--accent-light); opacity: 0.5; margin-bottom: 1rem;"></i>
+                    <h4 style="font-weight: 800;">¿Listo para tu ruta?</h4>
+                    <p class="text-muted">Descubre cuándo te graduarás con nuestra IA predictiva</p>
+                    <button class="btn btn-primary-custom" onclick="simularRuta()">
+                        <i class="fas fa-route me-2"></i>Simular mi ruta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ BECAS ============ -->
+<section class="section-padding" id="becas" style="background: rgba(255,255,255,0.02);">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">
+                <span class="highlight">Becas</span> destacadas
+            </h2>
+            <p class="section-subtitle">
+                Encuentra las becas que mejor se adaptan a tu perfil académico
+            </p>
+        </div>
+        <div class="row g-4" id="becasGrid">
+            <!-- Se carga con JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ============ DEMO INTERACTIVA ============ -->
+<section class="demo-section" id="demo">
+    <div class="container">
+        <div class="text-center" data-aos="fade-up">
+            <h2 class="section-title">
+                <span class="highlight">Demo</span> Interactiva
+            </h2>
+            <p class="section-subtitle">
+                Prueba el poder de la IA en tiempo real
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
+                <div class="demo-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-robot text-primary me-2"></i>
+                        Tutor IA
+                    </h5>
+                    <p class="text-muted small">Pregunta sobre cualquier tema académico</p>
+                    <div class="chat-container" id="chatMessages">
+                        <div class="chat-message bot">
+                            <i class="fas fa-robot me-2"></i>
+                            ¡Hola! Soy tu tutor IA. Pregúntame sobre matemáticas, programación, física o cualquier tema académico.
+                        </div>
+                    </div>
+                    <div class="chat-input-group">
+                        <input type="text" id="preguntaInput" placeholder="Escribe tu pregunta..." />
+                        <button id="enviarPreguntaBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaEjemplo('¿Cómo resuelvo derivadas?')">
+                            Derivadas
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaEjemplo('¿Qué es un array en Python?')">
+                            Python
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaEjemplo('Explica la segunda ley de Newton')">
+                            Física
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" style="color: var(--text-muted); border-color: rgba(255,255,255,0.1);" onclick="preguntaEjemplo('¿Cómo escribo un ensayo académico?')">
+                            Comunicación
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
+                <div class="demo-card">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-line text-success me-2"></i>
+                        Predicción de Riesgo
+                    </h5>
+                    <p class="text-muted small">Simula el análisis predictivo de un estudiante</p>
+                    <div id="prediccionResultado" class="prediccion-result">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Analizando datos...</p>
+                    </div>
+                    <button class="btn btn-primary-custom w-100 mt-3" id="analizarRiesgoBtn">
+                        <i class="fas fa-sync me-2"></i>Analizar Estudiante
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-box" data-aos="zoom-in">
+            <i class="fas fa-envelope" style="font-size: 2.5rem; color: var(--accent-light); margin-bottom: 1rem;"></i>
+            <h3>¿Quieres saber más?</h3>
+            <p>Suscríbete para recibir novedades sobre ALLIN YACHAY</p>
+            <div class="input-group-custom">
+                <input type="email" id="emailNewsletter" placeholder="Tu correo electrónico">
+                <button onclick="suscribirNewsletter()">
+                    <i class="fas fa-paper-plane me-2"></i>Suscribirme
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+                    ALLIN YACHAY
+                </h5>
+                <p class="text-muted" style="font-size: 0.9rem;">
+                    "Ningún estudiante atrás" - Ecosistema educativo con IA para la permanencia estudiantil en Perú.
+                </p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 style="font-weight: 700;">Módulos</h6>
+                <ul class="footer-links">
+                    <li><a href="#">IA Predictiva</a></li>
+                    <li><a href="#">Tutor Adaptativo</a></li>
+                    <li><a href="#">Soporte Quechua</a></li>
+                    <li><a href="#">Detector Emocional</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 style="font-weight: 700;">Recursos</h6>
+                <ul class="footer-links">
+                    <li><a href="#">Becas</a></li>
+                    <li><a href="#">Ruta Académica</a></li>
+                    <li><a href="#">Comunidad</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3">
+                <h6 style="font-weight: 700;">Contacto</h6>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-envelope me-2"></i>info@allinyachay.pe</a></li>
+                    <li><a href="#"><i class="fas fa-phone me-2"></i>+51 984 123 456</a></li>
+                    <li><a href="#"><i class="fas fa-map-marker-alt me-2"></i>Cusco, Perú</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.05); margin: 2rem 0;">
+        <p class="text-center text-muted small">
+            © 2024 ALLIN YACHAY - Todos los derechos reservados | Hecho con ❤️ en Cusco, Perú
+        </p>
+    </div>
+</footer>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    // ============ AOS ============
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+    });
+
+    // ============ NAVBAR SCROLL ============
+    window.addEventListener('scroll', function() {
+        const nav = document.getElementById('mainNav');
+        nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ============ CONTADORES ============
+    function animarContadores() {
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000;
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.ceil(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+            updateCounter();
+        });
+    }
+
+    // ============ MÓDULOS ============
+    const modulos = [
+        { icon: 'fa-brain', titulo: 'IA Predictiva', desc: 'Analiza notas, asistencia, participación y estado emocional para predecir riesgo de abandono.', badge: 'Predictivo', badgeClass: 'blue' },
+        { icon: 'fa-graduation-cap', titulo: 'Tutor IA Adaptativo', desc: 'Enseña Matemática, Física, Programación y Comunicación con enfoque personalizado.', badge: 'Adaptativo', badgeClass: 'green' },
+        { icon: 'fa-language', titulo: 'Soporte en Quechua', desc: 'Contenido educativo en Español y Quechua para comunidades andinas.', badge: 'Inclusivo', badgeClass: 'yellow' },
+        { icon: 'fa-heart', titulo: 'Detector Emocional', desc: 'Identifica estrés, desmotivación y riesgo académico a través de análisis de texto.', badge: 'Emocional', badgeClass: 'red' },
+        { icon: 'fa-user-tie', titulo: 'Mentor Inteligente', desc: 'Alertas personalizadas: "Has bajado 20% en Física, te recomiendo reforzar derivadas."', badge: 'Mentor', badgeClass: 'purple' },
+        { icon: 'fa-route', titulo: 'Orientación Vocacional', desc: 'Analiza gustos, habilidades y rendimiento para sugerir carreras y certificaciones.', badge: 'Vocacional', badgeClass: 'blue' }
+    ];
+
+    document.getElementById('modulosGrid').innerHTML = modulos.map((m, i) => `
+        <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="${(i+1)*100}">
+            <div class="module-card">
+                <div class="icon-wrapper"><i class="fas ${m.icon}"></i></div>
+                <h5>${m.titulo}</h5>
+                <p>${m.desc}</p>
+                <span class="badge-module ${m.badgeClass}">${m.badge}</span>
+            </div>
+        </div>
+    `).join('');
+
+    // ============ BECAS ============
+    const becas = [
+        { nombre: 'Beca 18', entidad: 'PRONABEC', monto: 'S/ 20,000', tags: ['Nacional', 'Excelencia'] },
+        { nombre: 'Vocación Maestro', entidad: 'Minedu', monto: 'S/ 15,000', tags: ['Educación', 'Social'] },
+        { nombre: 'Líderes del Mañana', entidad: 'Fundación BBVA', monto: 'S/ 25,000', tags: ['Liderazgo', 'Privado'] }
+    ];
+
+    document.getElementById('becasGrid').innerHTML = becas.map((b, i) => `
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="${(i+1)*100}">
+            <div class="beca-card">
+                <div class="beca-icon"><i class="fas fa-gift"></i></div>
+                <h6>${b.nombre}</h6>
+                <div class="beca-amount">${b.monto}</div>
+                <div class="beca-entity">${b.entidad}</div>
+                <div class="beca-tags">
+                    ${b.tags.map(t => `<span>${t}</span>`).join('')}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    // ============ CHAT ============
+    const API_URL = 'http://localhost:3000/api';
+
+    async function enviarPregunta() {
+        const input = document.getElementById('preguntaInput');
+        const chat = document.getElementById('chatMessages');
+        const pregunta = input.value.trim();
+        if (!pregunta) return;
+
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-message user';
+        userMsg.textContent = pregunta;
+        chat.appendChild(userMsg);
+        chat.scrollTop = chat.scrollHeight;
+        input.value = '';
+
+        const loading = document.createElement('div');
+        loading.className = 'chat-message bot';
+        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando...';
+        chat.appendChild(loading);
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+            const res = await fetch(`${API_URL}/tutor/preguntar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pregunta, curso: 'general', estudiante_id: 1 })
+            });
+            const data = await res.json();
+            loading.remove();
+
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-message bot';
+            botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${data.data?.respuesta || 'No entendí, intenta de nuevo.'}`;
+            chat.appendChild(botMsg);
+            chat.scrollTop = chat.scrollHeight;
+        } catch {
+            loading.remove();
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'chat-message bot';
+            errorMsg.innerHTML = '❌ Error al conectar con el servidor.';
+            chat.appendChild(errorMsg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+    }
+
+    function preguntaEjemplo(p) {
+        document.getElementById('preguntaInput').value = p;
+        enviarPregunta();
+    }
+
+    document.getElementById('enviarPreguntaBtn').addEventListener('click', enviarPregunta);
+    document.getElementById('preguntaInput').addEventListener('keypress', e => {
+        if (e.key === 'Enter') enviarPregunta();
+    });
+
+    // ============ PREDICCIÓN ============
+    async function analizarRiesgo() {
+        const container = document.getElementById('prediccionResultado');
+        const btn = document.getElementById('analizarRiesgoBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analizando...';
+
+        try {
+            const res = await fetch(`${API_URL}/prediccion/1`);
+            const data = await res.json();
+            if (data.success) {
+                const p = data.data;
+                const nivelClass = { 'Bajo': 'bajo', 'Medio': 'medio', 'Alto': 'alto' }[p.nivel_riesgo] || 'medio';
+                container.innerHTML = `
+                    <div class="level ${nivelClass}">${p.nivel_riesgo}</div>
+                    <p class="text-muted small">Probabilidad de abandono: ${p.probabilidad_abandono}%</p>
+                    <div class="progress-bar-custom">
+                        <div class="fill" style="width: ${p.probabilidad_abandono}%; background: ${p.color || '#3b82f6'};"></div>
+                    </div>
+                    <div class="text-start small">
+                        <span class="text-muted">Factores:</span>
+                        <div class="row g-1 mt-1">
+                            <div class="col-6">Rendimiento: ${p.factores?.rendimiento_academico || 70}%</div>
+                            <div class="col-6">Asistencia: ${p.factores?.asistencia || 80}%</div>
+                            <div class="col-6">Participación: ${p.factores?.participacion || 65}%</div>
+                            <div class="col-6">Motivación: ${p.factores?.estado_emocional || 75}%</div>
+                        </div>
+                    </div>
+                    <div class="text-start mt-2 small">
+                        <span class="text-muted">Recomendaciones:</span>
+                        <ul class="mb-0">
+                            ${(p.recomendaciones || ['Reforzar temas clave', 'Participar en tutorías']).map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+        } catch {
+            container.innerHTML = `
+                <div class="text-danger">
+                    <i class="fas fa-exclamation-circle fa-2x"></i>
+                    <p class="mt-2">Error al analizar</p>
+                </div>
+            `;
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sync me-2"></i>Analizar Estudiante';
+    }
+
+    document.getElementById('analizarRiesgoBtn').addEventListener('click', analizarRiesgo);
+
+    // ============ FUNCIONES EXTRA ============
+    function simularRuta() {
+        Swal.fire({
+            icon: 'success',
+            title: '📊 Ruta Académica Calculada',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>📅 Fecha estimada de graduación:</strong> <span style="color: #3b82f6;">Junio 2028</span></p>
+                    <p><strong>✅ Créditos completados:</strong> 45 de 200 (22.5%)</p>
+                    <p><strong>📈 Progreso:</strong> Si mantienes tu ritmo, egresas en 2028</p>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-top: 0.5rem;">
+                        <span style="color: #94a3b8; font-size: 0.85rem;">💡 Recomendación:</span>
+                        <span style="color: #10b981;">Aprueba Cálculo II este ciclo para no retrasarte</span>
+                    </div>
+                </div>
+            `,
+            confirmButtonText: '¡Genial!',
+            confirmButtonColor: '#3b82f6',
+            background: '#0f172a',
+            color: '#f8fafc',
+            width: 500
+        });
+    }
+
+    function suscribirNewsletter() {
+        const email = document.getElementById('emailNewsletter').value;
+        if (!email || !email.includes('@')) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Correo inválido',
+                text: 'Por favor ingresa un correo válido',
+                background: '#0f172a',
+                color: '#f8fafc',
+                confirmButtonColor: '#3b82f6'
+            });
+            return;
+        }
+        Swal.fire({
+            icon: 'success',
+            title: '¡Suscrito! 🎉',
+            text: 'Recibirás noticias de ALLIN YACHAY',
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#0f172a',
+            color: '#f8fafc'
+        });
+        document.getElementById('emailNewsletter').value = '';
+    }
+
+    // ============ INICIALIZAR ============
+    document.addEventListener('DOMContentLoaded', function() {
+        animarContadores();
+        setTimeout(analizarRiesgo, 800);
+    });
+</script>
+</body>
+</html>
