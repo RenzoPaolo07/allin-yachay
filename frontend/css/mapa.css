@@ -1,0 +1,70 @@
+/* frontend/css/mapa.css */
+.mapa-container {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.mapa-container .region-marker {
+    position: absolute;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mapa-container .region-marker:hover {
+    transform: scale(1.3);
+    z-index: 10;
+}
+
+.mapa-container .region-marker .tooltip {
+    display: none;
+    position: absolute;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.1);
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mapa-container .region-marker:hover .tooltip {
+    display: block;
+}
+
+.region-legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.region-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.region-legend .legend-item .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.region-legend .legend-item .dot.bajo { background: var(--success); }
+.region-legend .legend-item .dot.medio { background: var(--warning); }
+.region-legend .legend-item .dot.alto { background: var(--danger); }
+
+@media (max-width: 768px) {
+    .mapa-container { min-height: 300px; }
+    .region-legend { gap: 0.8rem; }
+    .region-legend .legend-item { font-size: 0.7rem; }
+}

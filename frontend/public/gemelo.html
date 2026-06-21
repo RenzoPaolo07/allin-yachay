@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemelo Digital - ALLIN YACHAY</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body {
+            background: var(--primary);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .main-content { padding-top: 80px; padding-bottom: 2rem; }
+        .container { max-width: 1200px; }
+        
+        .card-module {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .card-module:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .stat-number { font-size: 2.5rem; font-weight: 900; }
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+        
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.15);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .btn-outline-custom:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--accent);
+            color: white;
+        }
+        
+        .scenario-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .scenario-card:hover {
+            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(255,255,255,0.04);
+        }
+        
+        .progress-bar-custom {
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-custom .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .badge-riesgo {
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge-riesgo.bajo { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .badge-riesgo.medio { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-riesgo.alto { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .simulacion-resultado {
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .stat-number { font-size: 1.8rem; }
+            .btn-primary-custom, .btn-outline-custom { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="font-weight: 900; font-size: 1.6rem; color: white; text-decoration: none;">
+            <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+            ALLIN <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">YACHAY</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="/dashboard" style="color: var(--text-muted); text-decoration: none;">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mapa" style="color: var(--text-muted); text-decoration: none;">Mapa</a></li>
+                <li class="nav-item"><a class="nav-link" href="/gemelo" style="color: var(--text-muted); text-decoration: none; font-weight: 700; color: white;">Gemelo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/talento" style="color: var(--text-muted); text-decoration: none;">Talento</a></li>
+                <li class="nav-item"><a class="btn btn-primary-custom" href="/dashboard" style="padding: 0.4rem 1.5rem; font-size: 0.85rem;">Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 style="font-weight: 900; font-size: 2.5rem;">
+                    <i class="fas fa-robot" style="color: var(--accent);"></i>
+                    Gemelo <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Digital</span>
+                </h1>
+                <p class="text-muted" style="font-size: 1.1rem;">
+                    Simula escenarios académicos y visualiza tu futuro educativo
+                </p>
+            </div>
+        </div>
+
+        <!-- Estadísticas del Gemelo -->
+        <div class="row g-4 mb-4" id="estadisticasGemelo">
+            <!-- Se carga con JavaScript -->
+        </div>
+
+        <!-- Simulación de Escenarios -->
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card-module">
+                    <h5 class="mb-3">
+                        <i class="fas fa-flask" style="color: var(--accent);"></i>
+                        Simular Escenarios
+                    </h5>
+                    <p class="text-muted small">Elige un escenario para ver cómo afecta tu futuro académico</p>
+                    
+                    <div class="row g-2" id="escenariosGrid">
+                        <div class="col-6" onclick="simularEscenario('mas_estudio', '2 horas más de estudio diario')">
+                            <div class="scenario-card text-center">
+                                <i class="fas fa-clock" style="font-size: 2rem; color: var(--success);"></i>
+                                <h6 class="mt-2">Más Estudio</h6>
+                                <small class="text-muted">+2 horas/día</small>
+                            </div>
+                        </div>
+                        <div class="col-6" onclick="simularEscenario('tutorias', 'Recibir tutorías personalizadas')">
+                            <div class="scenario-card text-center">
+                                <i class="fas fa-chalkboard-teacher" style="font-size: 2rem; color: var(--accent);"></i>
+                                <h6 class="mt-2">Tutorías</h6>
+                                <small class="text-muted">Apoyo académico</small>
+                            </div>
+                        </div>
+                        <div class="col-6" onclick="simularEscenario('beca', 'Obtener una beca')">
+                            <div class="scenario-card text-center">
+                                <i class="fas fa-gift" style="font-size: 2rem; color: var(--warning);"></i>
+                                <h6 class="mt-2">Beca</h6>
+                                <small class="text-muted">Apoyo económico</small>
+                            </div>
+                        </div>
+                        <div class="col-6" onclick="simularEscenario('reprobar', 'Reprobar un curso importante')">
+                            <div class="scenario-card text-center">
+                                <i class="fas fa-times-circle" style="font-size: 2rem; color: var(--danger);"></i>
+                                <h6 class="mt-2">Reprobar Curso</h6>
+                                <small class="text-muted">Impacto negativo</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card-module" id="resultadoSimulacion">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-line" style="color: var(--success);"></i>
+                        Resultado de la Simulación
+                    </h5>
+                    <div id="simulacionContent" class="text-center py-4">
+                        <i class="fas fa-lightbulb" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3;"></i>
+                        <p class="text-muted mt-2">Selecciona un escenario para ver los resultados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Escenarios -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card-module">
+                    <h5 class="mb-3">
+                        <i class="fas fa-history" style="color: var(--warning);"></i>
+                        Historial de Simulaciones
+                    </h5>
+                    <div id="historialSimulaciones" class="text-center text-muted py-3">
+                        <i class="fas fa-clock" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p>No hay simulaciones guardadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    const ESTUDIANTE_ID = 1;
+
+    // ============ CARGAR GEMELO ============
+    async function cargarGemelo() {
+        try {
+            const res = await fetch(`${API_URL}/gemelo/${ESTUDIANTE_ID}`);
+            const data = await res.json();
+            
+            if (data.success) {
+                const g = data.data;
+                const statsContainer = document.getElementById('estadisticasGemelo');
+                
+                const nivelRiesgo = g.probabilidad_graduacion > 70 ? 'bajo' : g.probabilidad_graduacion > 40 ? 'medio' : 'alto';
+                const riesgoLabel = g.probabilidad_graduacion > 70 ? 'Bajo' : g.probabilidad_graduacion > 40 ? 'Medio' : 'Alto';
+                
+                statsContainer.innerHTML = `
+                    <div class="col-md-3 col-6">
+                        <div class="card-module text-center">
+                            <div class="stat-number" style="color: var(--accent);">${g.promedio_actual || 0}</div>
+                            <div class="stat-label">Promedio Actual</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card-module text-center">
+                            <div class="stat-number" style="color: var(--success);">${g.creditos_aprobados || 0}</div>
+                            <div class="stat-label">Créditos Aprobados</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card-module text-center">
+                            <div class="stat-number" style="color: var(--warning);">${g.probabilidad_graduacion || 0}%</div>
+                            <div class="stat-label">Probabilidad de Graduación</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="card-module text-center">
+                            <div class="stat-number" style="font-size: 1.5rem;">${g.fecha_estimada_graduacion ? new Date(g.fecha_estimada_graduacion).getFullYear() : 'N/A'}</div>
+                            <div class="stat-label">Año Estimado de Graduación</div>
+                            <span class="badge-riesgo ${nivelRiesgo} mt-2">Riesgo ${riesgoLabel}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Cargar historial
+                if (g.escenarios && g.escenarios.length > 0) {
+                    cargarHistorial(g.escenarios);
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando gemelo:', error);
+        }
+    }
+
+    // ============ SIMULAR ESCENARIO ============
+    async function simularEscenario(tipo, descripcion) {
+        const btn = event?.currentTarget || document.querySelector('.scenario-card');
+        const content = document.getElementById('simulacionContent');
+        
+        // Mostrar loading
+        content.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Simulando escenario...</p>
+            </div>
+        `;
+
+        try {
+            const res = await fetch(`${API_URL}/gemelo/${ESTUDIANTE_ID}/simular`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tipo, horas: 2, descripcion })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                const r = data.data;
+                const resultados = r.resultados;
+                
+                content.innerHTML = `
+                    <div class="simulacion-resultado">
+                        <div class="text-center">
+                            <h4 style="color: var(--accent);">${descripcion}</h4>
+                        </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-6">
+                                <div class="text-center" style="background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--success);">${resultados.promedio}</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Nuevo Promedio</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center" style="background: rgba(255,255,255,0.03); padding: 0.8rem; border-radius: 12px;">
+                                    <div style="font-size: 1.5rem; font-weight: 900; color: var(--warning);">${resultados.probabilidad_graduacion}%</div>
+                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Nueva Probabilidad</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                                <span>Avance</span>
+                                <span>${resultados.porcentaje_avance}%</span>
+                            </div>
+                            <div class="progress-bar-custom">
+                                <div class="fill" style="width: ${resultados.porcentaje_avance}%; background: var(--accent-gradient);"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Nueva fecha estimada: ${new Date(resultados.fecha_estimada).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })}
+                            </div>
+                        </div>
+                        ${r.recomendaciones && r.recomendaciones.length > 0 ? `
+                            <div class="mt-3" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 0.8rem;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: var(--success);">
+                                    <i class="fas fa-check-circle me-1"></i> Recomendaciones
+                                </div>
+                                ${r.recomendaciones.map(rec => `
+                                    <div style="font-size: 0.8rem; color: var(--text-muted); padding: 0.2rem 0;">
+                                        <strong>${rec.area}:</strong> ${rec.mensaje}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                // Recargar gemelo para actualizar estadísticas
+                cargarGemelo();
+                
+                // Mostrar notificación
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Simulación Completada',
+                    text: 'El escenario ha sido simulado exitosamente',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        } catch (error) {
+            console.error('Error simulando:', error);
+            content.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger);"></i>
+                    <p class="text-danger mt-2">Error al simular el escenario</p>
+                </div>
+            `;
+        }
+    }
+
+    // ============ CARGAR HISTORIAL ============
+    function cargarHistorial(escenarios) {
+        const container = document.getElementById('historialSimulaciones');
+        if (!escenarios || escenarios.length === 0) {
+            container.innerHTML = `
+                <i class="fas fa-clock" style="font-size: 2rem; opacity: 0.3;"></i>
+                <p>No hay simulaciones guardadas</p>
+            `;
+            return;
+        }
+
+        container.innerHTML = escenarios.slice().reverse().map((s, i) => `
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <span style="font-weight: 700;">${s.escenario.descripcion || 'Escenario'}</span>
+                        <span style="font-size: 0.7rem; color: var(--text-muted); margin-left: 0.5rem;">
+                            ${new Date(s.fecha).toLocaleDateString('es-ES')}
+                        </span>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--success);">
+                        ${s.resultados.probabilidad_graduacion}%
+                    </span>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 0.3rem; font-size: 0.8rem; color: var(--text-muted);">
+                    <span>📊 ${s.resultados.promedio}</span>
+                    <span>📈 ${s.resultados.porcentaje_avance}%</span>
+                    <span>🎯 ${new Date(s.resultados.fecha_estimada).getFullYear()}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ============ INICIALIZAR ============
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarGemelo();
+    });
+</script>
+</body>
+</html>

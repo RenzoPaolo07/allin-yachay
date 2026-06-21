@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Talento - ALLIN YACHAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body { background: var(--primary); color: var(--text-light); min-height: 100vh; }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .main-content { padding-top: 80px; padding-bottom: 2rem; }
+        .card-module {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .card-module:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.2); }
+        .talento-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .talento-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-3px); }
+        .talento-card .nivel-excepcional { color: #f59e0b; }
+        .talento-card .nivel-destacado { color: var(--accent); }
+        .talento-card .nivel-avanzado { color: var(--success); }
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4); color: white; }
+        .btn-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.15);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .btn-outline-custom:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); color: white; }
+        @media (max-width: 768px) {
+            .btn-primary-custom, .btn-outline-custom { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="font-weight: 900; font-size: 1.6rem; color: white; text-decoration: none;">
+            <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+            ALLIN <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">YACHAY</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="/dashboard" style="color: var(--text-muted); text-decoration: none;">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mapa" style="color: var(--text-muted); text-decoration: none;">Mapa</a></li>
+                <li class="nav-item"><a class="nav-link" href="/gemelo" style="color: var(--text-muted); text-decoration: none;">Gemelo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/talento" style="color: white; text-decoration: none; font-weight: 700;">Talento</a></li>
+                <li class="nav-item"><a class="btn btn-primary-custom" href="/dashboard" style="padding: 0.4rem 1.5rem; font-size: 0.85rem;">Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 style="font-weight: 900; font-size: 2.5rem;">
+                    <i class="fas fa-star" style="color: var(--warning);"></i>
+                    Detector de <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Talento</span>
+                </h1>
+                <p class="text-muted" style="font-size: 1.1rem;">Descubre talentos ocultos y potenciales líderes académicos</p>
+            </div>
+        </div>
+
+        <!-- Tipos de Talento -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-6" onclick="detectarTalento('investigador')">
+                <div class="card-module text-center">
+                    <i class="fas fa-flask" style="font-size: 2.5rem; color: var(--accent);"></i>
+                    <h6 class="mt-2">🔬 Investigador</h6>
+                    <small class="text-muted">Ciencia e investigación</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6" onclick="detectarTalento('emprendedor')">
+                <div class="card-module text-center">
+                    <i class="fas fa-rocket" style="font-size: 2.5rem; color: var(--success);"></i>
+                    <h6 class="mt-2">🚀 Emprendedor</h6>
+                    <small class="text-muted">Innovación y negocios</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6" onclick="detectarTalento('ingeniero')">
+                <div class="card-module text-center">
+                    <i class="fas fa-code" style="font-size: 2.5rem; color: var(--warning);"></i>
+                    <h6 class="mt-2">💻 Ingeniero</h6>
+                    <small class="text-muted">Tecnología y sistemas</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-6" onclick="detectarTalento('lider')">
+                <div class="card-module text-center">
+                    <i class="fas fa-users" style="font-size: 2.5rem; color: #8b5cf6;"></i>
+                    <h6 class="mt-2">👥 Líder</h6>
+                    <small class="text-muted">Dirección y equipos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultado -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card-module" id="resultadoTalento">
+                    <h5 class="mb-3">
+                        <i class="fas fa-search" style="color: var(--accent);"></i>
+                        Resultado del Análisis
+                    </h5>
+                    <div id="talentoContent" class="text-center py-4">
+                        <i class="fas fa-lightbulb" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3;"></i>
+                        <p class="text-muted mt-2">Selecciona un tipo de talento para analizar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recomendaciones -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card-module">
+                    <h5 class="mb-3">
+                        <i class="fas fa-gem" style="color: var(--warning);"></i>
+                        Recomendaciones para tu Desarrollo
+                    </h5>
+                    <div id="recomendacionesTalento" class="text-center text-muted py-3">
+                        <i class="fas fa-lightbulb" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p>Las recomendaciones aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    const ESTUDIANTE_ID = 1;
+
+    const talentosInfo = {
+        investigador: {
+            nombre: '🔬 Investigador',
+            descripcion: 'Tienes habilidades para la investigación científica',
+            habilidades: ['Análisis crítico', 'Pensamiento lógico', 'Curiosidad científica', 'Método científico'],
+            recomendaciones: [
+                'Postular a becas de investigación',
+                'Participar en congresos académicos',
+                'Publicar artículos científicos',
+                'Unirse a grupos de investigación'
+            ]
+        },
+        emprendedor: {
+            nombre: '🚀 Emprendedor',
+            descripcion: 'Tienes visión para crear y liderar proyectos innovadores',
+            habilidades: ['Visión estratégica', 'Toma de decisiones', 'Comunicación efectiva', 'Creatividad'],
+            recomendaciones: [
+                'Participar en incubadoras de startups',
+                'Tomar cursos de emprendimiento',
+                'Hacer networking empresarial',
+                'Desarrollar un plan de negocio'
+            ]
+        },
+        ingeniero: {
+            nombre: '💻 Ingeniero',
+            descripcion: 'Tienes capacidad técnica para resolver problemas complejos',
+            habilidades: ['Resolución de problemas', 'Pensamiento sistémico', 'Programación', 'Análisis de datos'],
+            recomendaciones: [
+                'Participar en hackathons',
+                'Obtener certificaciones técnicas',
+                'Contribuir a proyectos open source',
+                'Especializarse en tecnologías emergentes'
+            ]
+        },
+        lider: {
+            nombre: '👥 Líder',
+            descripcion: 'Tienes habilidad para guiar y motivar equipos',
+            habilidades: ['Comunicación asertiva', 'Trabajo en equipo', 'Planificación estratégica', 'Empatía'],
+            recomendaciones: [
+                'Tomar talleres de liderazgo',
+                'Participar en programas de mentoría',
+                'Hacer voluntariado',
+                'Liderar proyectos estudiantiles'
+            ]
+        }
+    };
+
+    async function detectarTalento(tipo) {
+        const content = document.getElementById('talentoContent');
+        const recomendacionesDiv = document.getElementById('recomendacionesTalento');
+
+        // Mostrar loading
+        content.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Analizando talento...</p>
+            </div>
+        `;
+
+        try {
+            const datos = {
+                descripcion: 'Estudiante con alto rendimiento en ' + tipo,
+                cursos: 'Programación, Matemáticas, Física',
+                intereses: 'Tecnología, Innovación',
+                habilidades: ['Análisis', 'Creatividad', 'Trabajo en equipo'],
+                actividades: ['Hackathon', 'Voluntariado', 'Club de programación'],
+                promedio: 16.5
+            };
+
+            const res = await fetch(`${API_URL}/talento/detectar/${ESTUDIANTE_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const resultado = data.data;
+                const talento = talentosInfo[tipo] || talentosInfo.investigador;
+
+                content.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 3rem;">${talento.nombre}</div>
+                                <h5 class="mt-2">${talento.nombre}</h5>
+                                <p class="text-muted">${talento.descripcion}</p>
+                                <div class="mt-2">
+                                    <span class="badge" style="background: var(--accent-gradient);">Puntuación: ${resultado.talentos_detectados[0]?.puntuacion || 85}%</span>
+                                    <span class="badge ms-2" style="background: ${resultado.talentos_detectados[0]?.nivel === 'Excepcional' ? '#f59e0b' : 'var(--success)'};">
+                                        ${resultado.talentos_detectados[0]?.nivel || 'Destacado'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.5rem;">
+                                <h6><i class="fas fa-tools" style="color: var(--accent);"></i> Habilidades</h6>
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    ${talento.habilidades.map(h => `<span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent-light); padding: 0.4rem 0.8rem;">${h}</span>`).join('')}
+                                </div>
+                                <h6 class="mt-3"><i class="fas fa-star" style="color: var(--warning);"></i> Potencial</h6>
+                                <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${resultado.talentos_detectados[0]?.potencial || 85}%; background: var(--accent-gradient); border-radius: 10px;"></div>
+                                </div>
+                                <div class="mt-1 text-end" style="font-size: 0.8rem; color: var(--text-muted);">
+                                    ${resultado.talentos_detectados[0]?.potencial || 85}% de potencial
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Recomendaciones
+                recomendacionesDiv.innerHTML = `
+                    <div class="row g-2">
+                        ${talento.recomendaciones.map(rec => `
+                            <div class="col-md-6">
+                                <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 0.8rem 1rem;">
+                                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                    <span style="font-size: 0.9rem;">${rec}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                // Notificación
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Talento Detectado',
+                    text: `¡Eres un ${talento.nombre}!`,
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    confirmButtonColor: '#3b82f6',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        } catch (error) {
+            console.error('Error detectando talento:', error);
+            content.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger);"></i>
+                    <p class="text-danger mt-2">Error al analizar el talento</p>
+                </div>
+            `;
+        }
+    }
+</script>
+</body>
+</html>

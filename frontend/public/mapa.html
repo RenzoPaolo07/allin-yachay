@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Educativo - ALLIN YACHAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body { background: var(--primary); color: var(--text-light); min-height: 100vh; }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .main-content { padding-top: 80px; padding-bottom: 2rem; }
+        .card-module {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .card-module:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.2); }
+        .stat-number { font-size: 2.5rem; font-weight: 900; }
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+        .region-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .region-card:hover { background: rgba(255,255,255,0.06); transform: translateY(-3px); }
+        .region-card .riesgo-bajo { color: var(--success); }
+        .region-card .riesgo-medio { color: var(--warning); }
+        .region-card .riesgo-alto { color: var(--danger); }
+        .mapa-container {
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .mapa-container .placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .mapa-container .placeholder i {
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+        @media (max-width: 768px) {
+            .stat-number { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="font-weight: 900; font-size: 1.6rem; color: white; text-decoration: none;">
+            <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+            ALLIN <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">YACHAY</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="/dashboard" style="color: var(--text-muted); text-decoration: none;">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mapa" style="color: white; text-decoration: none; font-weight: 700;">Mapa</a></li>
+                <li class="nav-item"><a class="nav-link" href="/gemelo" style="color: var(--text-muted); text-decoration: none;">Gemelo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/talento" style="color: var(--text-muted); text-decoration: none;">Talento</a></li>
+                <li class="nav-item"><a class="btn btn-primary-custom" href="/dashboard" style="padding: 0.4rem 1.5rem; font-size: 0.85rem; background: var(--accent-gradient); color: white; border: none; border-radius: 50px; text-decoration: none;">Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 style="font-weight: 900; font-size: 2.5rem;">
+                    <i class="fas fa-map-marked-alt" style="color: var(--accent);"></i>
+                    Mapa <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Educativo</span>
+                </h1>
+                <p class="text-muted" style="font-size: 1.1rem;">Visualiza datos educativos del Perú en tiempo real</p>
+            </div>
+        </div>
+
+        <!-- Estadísticas Nacionales -->
+        <div class="row g-4 mb-4" id="estadisticasNacionales">
+            <div class="col-md-3 col-6">
+                <div class="card-module text-center">
+                    <div class="stat-number" style="color: var(--accent);" id="totalEstudiantes">0</div>
+                    <div class="stat-label">Estudiantes</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card-module text-center">
+                    <div class="stat-number" style="color: var(--danger);" id="enRiesgo">0</div>
+                    <div class="stat-label">En Riesgo</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card-module text-center">
+                    <div class="stat-number" style="color: var(--warning);" id="tasaRiesgo">0%</div>
+                    <div class="stat-label">Tasa de Riesgo</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card-module text-center">
+                    <div class="stat-number" style="color: var(--success);" id="universidades">0</div>
+                    <div class="stat-label">Universidades</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mapa y Regiones -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card-module">
+                    <h5 class="mb-3"><i class="fas fa-map" style="color: var(--accent);"></i> Mapa del Perú</h5>
+                    <div class="mapa-container">
+                        <div class="placeholder">
+                            <i class="fas fa-map"></i>
+                            <h5 class="mt-3">Mapa Interactivo</h5>
+                            <p>Visualización de datos educativos por región</p>
+                            <div class="d-flex justify-content-center gap-3 mt-2">
+                                <span><span class="badge" style="background: var(--success);">●</span> Bajo Riesgo</span>
+                                <span><span class="badge" style="background: var(--warning);">●</span> Medio Riesgo</span>
+                                <span><span class="badge" style="background: var(--danger);">●</span> Alto Riesgo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card-module">
+                    <h5 class="mb-3"><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Regiones Críticas</h5>
+                    <div id="regionesCriticas">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Todas las Regiones -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card-module">
+                    <h5 class="mb-3"><i class="fas fa-city" style="color: var(--accent);"></i> Todas las Regiones</h5>
+                    <div class="row g-3" id="todasRegiones">
+                        <div class="col-12 text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando regiones...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+
+    async function cargarMapa() {
+        try {
+            // Cargar estadísticas nacionales
+            const statsRes = await fetch(`${API_URL}/mapa/estadisticas`);
+            const statsData = await statsRes.json();
+            if (statsData.success) {
+                const s = statsData.data;
+                document.getElementById('totalEstudiantes').textContent = s.total_estudiantes?.toLocaleString() || '0';
+                document.getElementById('enRiesgo').textContent = s.total_riesgo?.toLocaleString() || '0';
+                document.getElementById('tasaRiesgo').textContent = s.tasa_promedio_riesgo || '0%';
+                document.getElementById('universidades').textContent = s.universidades_totales || '0';
+            }
+
+            // Cargar regiones críticas
+            const criticasRes = await fetch(`${API_URL}/mapa/criticas`);
+            const criticasData = await criticasRes.json();
+            if (criticasData.success) {
+                const criticas = criticasData.data;
+                const container = document.getElementById('regionesCriticas');
+                if (criticas.length > 0) {
+                    container.innerHTML = criticas.map((r, i) => {
+                        const nivel = r.tasa_riesgo > 30 ? 'alto' : r.tasa_riesgo > 20 ? 'medio' : 'bajo';
+                        const color = nivel === 'alto' ? 'var(--danger)' : nivel === 'medio' ? 'var(--warning)' : 'var(--success)';
+                        const icon = nivel === 'alto' ? '🔴' : nivel === 'medio' ? '🟡' : '🟢';
+                        return `
+                            <div class="region-card mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span style="font-size: 1.2rem;">${icon}</span>
+                                        <strong>${r.nombre}</strong>
+                                        <span class="text-muted" style="font-size: 0.8rem;">${r.estudiantes_riesgo} estudiantes en riesgo</span>
+                                    </div>
+                                    <span style="color: ${color}; font-weight: 900;">${r.tasa_riesgo}%</span>
+                                </div>
+                                <div class="mt-1" style="height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                                    <div style="height: 100%; width: ${r.tasa_riesgo}%; background: ${color}; border-radius: 10px;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="text-center text-muted py-3">No hay regiones críticas</div>';
+                }
+            }
+
+            // Cargar todas las regiones
+            const regionesRes = await fetch(`${API_URL}/mapa/regiones`);
+            const regionesData = await regionesRes.json();
+            if (regionesData.success) {
+                const regiones = regionesData.data;
+                const container = document.getElementById('todasRegiones');
+                if (regiones.length > 0) {
+                    container.innerHTML = regiones.map(r => {
+                        const nivel = r.tasa_riesgo > 30 ? 'alto' : r.tasa_riesgo > 20 ? 'medio' : 'bajo';
+                        const color = nivel === 'alto' ? 'var(--danger)' : nivel === 'medio' ? 'var(--warning)' : 'var(--success)';
+                        return `
+                            <div class="col-md-4">
+                                <div class="region-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">${r.nombre}</h6>
+                                        <span style="color: ${color}; font-weight: 700;">${r.tasa_riesgo}%</span>
+                                    </div>
+                                    <div class="mt-1" style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; width: ${r.tasa_riesgo}%; background: ${color}; border-radius: 10px;"></div>
+                                    </div>
+                                    <div class="mt-2" style="font-size: 0.8rem; color: var(--text-muted);">
+                                        <span>📚 ${r.total_estudiantes} estudiantes</span>
+                                        <span class="ms-2">🏛️ ${r.universidades} universidades</span>
+                                    </div>
+                                    <div class="mt-1" style="font-size: 0.7rem; color: var(--text-muted);">
+                                        ${r.carreras_dominantes?.join(' • ') || ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="text-center text-muted py-3">No hay regiones registradas</div>';
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando mapa:', error);
+            document.getElementById('regionesCriticas').innerHTML = '<div class="text-center text-danger py-3">Error al cargar datos</div>';
+            document.getElementById('todasRegiones').innerHTML = '<div class="text-center text-danger py-3">Error al cargar regiones</div>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarMapa);
+</script>
+</body>
+</html>

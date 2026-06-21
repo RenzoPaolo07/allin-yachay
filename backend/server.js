@@ -45,6 +45,12 @@ const tutorRoutes = require('./api/tutor.routes');
 const prediccionRoutes = require('./api/prediccion.routes');
 const becaRoutes = require('./api/beca.routes');
 const dashboardRoutes = require('./api/dashboard.routes');
+// Nuevos módulos
+const mapaRoutes = require('./api/mapa.routes');
+const talentoRoutes = require('./api/talento.routes');
+const crisisRoutes = require('./api/crisis.routes');
+const bienestarRoutes = require('./api/bienestar.routes');
+const oportunidadesRoutes = require('./api/oportunidades.routes');
 
 // Registrar rutas API
 app.use('/api/auth', authRoutes);
@@ -53,6 +59,12 @@ app.use('/api/tutor', tutorRoutes);
 app.use('/api/prediccion', prediccionRoutes);
 app.use('/api/becas', becaRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+// Registrar nuevas rutas
+app.use('/api/mapa', mapaRoutes);
+app.use('/api/talento', talentoRoutes);
+app.use('/api/crisis', crisisRoutes);
+app.use('/api/bienestar', bienestarRoutes);
+app.use('/api/oportunidades', oportunidadesRoutes);
 
 // 🔥 RUTAS PARA EL FRONTEND - FORMA CORRECTA
 // Ruta principal

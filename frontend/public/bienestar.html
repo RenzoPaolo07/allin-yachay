@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienestar - ALLIN YACHAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body { background: var(--primary); color: var(--text-light); min-height: 100vh; }
+        .navbar-custom {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.8rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .main-content { padding-top: 80px; padding-bottom: 2rem; }
+        .card-module {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .card-module:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.2); }
+        .stat-number { font-size: 2.5rem; font-weight: 900; }
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; }
+        .btn-primary-custom {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4); color: white; }
+        .nivel-saludable { color: var(--success); }
+        .nivel-riesgo-leve { color: var(--warning); }
+        .nivel-riesgo-moderado { color: #f97316; }
+        .nivel-riesgo-alto { color: var(--danger); }
+        .recurso-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            transition: all 0.3s;
+        }
+        .recurso-card:hover { background: rgba(255,255,255,0.05); }
+        @media (max-width: 768px) {
+            .stat-number { font-size: 1.8rem; }
+            .btn-primary-custom { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/" style="font-weight: 900; font-size: 1.6rem; color: white; text-decoration: none;">
+            <i class="fas fa-graduation-cap" style="color: var(--accent);"></i>
+            ALLIN <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">YACHAY</span>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="/dashboard" style="color: var(--text-muted); text-decoration: none;">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mapa" style="color: var(--text-muted); text-decoration: none;">Mapa</a></li>
+                <li class="nav-item"><a class="nav-link" href="/gemelo" style="color: var(--text-muted); text-decoration: none;">Gemelo</a></li>
+                <li class="nav-item"><a class="nav-link" href="/talento" style="color: var(--text-muted); text-decoration: none;">Talento</a></li>
+                <li class="nav-item"><a class="nav-link" href="/bienestar" style="color: white; text-decoration: none; font-weight: 700;">Bienestar</a></li>
+                <li class="nav-item"><a class="btn btn-primary-custom" href="/dashboard" style="padding: 0.4rem 1.5rem; font-size: 0.85rem;">Dashboard</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 style="font-weight: 900; font-size: 2.5rem;">
+                    <i class="fas fa-heart" style="color: var(--danger);"></i>
+                    <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Bienestar</span> Estudiantil
+                </h1>
+                <p class="text-muted" style="font-size: 1.1rem;">Cuida tu salud mental y emocional con nuestra IA</p>
+            </div>
+        </div>
+
+        <!-- Evaluación -->
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card-module">
+                    <h5 class="mb-3"><i class="fas fa-brain" style="color: var(--accent);"></i> Evaluación Rápida</h5>
+                    <p class="text-muted small">Responde estas preguntas para evaluar tu bienestar</p>
+                    <div class="mb-2">
+                        <label class="form-label text-muted small">¿Cómo te sientes hoy?</label>
+                        <select class="form-select" id="estadoAnimo" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white;">
+                            <option value="feliz">😊 Feliz</option>
+                            <option value="tranquilo">😌 Tranquilo</option>
+                            <option value="estresado">😰 Estresado</option>
+                            <option value="cansado">😴 Cansado</option>
+                            <option value="triste">😔 Triste</option>
+                            <option value="ansioso">😟 Ansioso</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label text-muted small">Nivel de estrés (1-10)</label>
+                        <input type="range" class="form-range" id="nivelEstres" min="1" max="10" value="5" style="accent-color: var(--accent);">
+                        <span id="estresValue" style="font-size: 0.8rem; color: var(--text-muted);">5</span>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label text-muted small">Horas de sueño</label>
+                        <input type="number" class="form-control" id="horasSueno" value="7" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.06); color: white;">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="actividadFisica" style="accent-color: var(--accent);">
+                        <label class="form-check-label text-muted small" for="actividadFisica">Hice actividad física hoy</label>
+                    </div>
+                    <button class="btn btn-primary-custom w-100" onclick="evaluarBienestar()">
+                        <i class="fas fa-stethoscope me-2"></i>Evaluar Bienestar
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card-module">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-bar" style="color: var(--success);"></i>
+                        Resultado de la Evaluación
+                    </h5>
+                    <div id="resultadoBienestar" class="text-center py-4">
+                        <i class="fas fa-heartbeat" style="font-size: 3rem; color: var(--text-muted); opacity: 0.3;"></i>
+                        <p class="text-muted mt-2">Completa la evaluación para ver tu estado de bienestar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recursos Recomendados -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card-module">
+                    <h5 class="mb-3">
+                        <i class="fas fa-life-ring" style="color: var(--warning);"></i>
+                        Recursos de Apoyo
+                    </h5>
+                    <div id="recursosBienestar" class="row g-2">
+                        <div class="col-md-4">
+                            <div class="recurso-card text-center">
+                                <i class="fas fa-phone" style="font-size: 1.5rem; color: var(--accent);"></i>
+                                <h6 class="mt-1">Línea de Apoyo</h6>
+                                <small class="text-muted">0800-123-456</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="recurso-card text-center">
+                                <i class="fas fa-brain" style="font-size: 1.5rem; color: var(--success);"></i>
+                                <h6 class="mt-1">Mindfulness</h6>
+                                <small class="text-muted">App gratuita</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="recurso-card text-center">
+                                <i class="fas fa-users" style="font-size: 1.5rem; color: #8b5cf6;"></i>
+                                <h6 class="mt-1">Grupos de Apoyo</h6>
+                                <small class="text-muted">Todos los días</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    const ESTUDIANTE_ID = 1;
+
+    // Actualizar valor del rango
+    document.getElementById('nivelEstres').addEventListener('input', function() {
+        document.getElementById('estresValue').textContent = this.value;
+    });
+
+    async function evaluarBienestar() {
+        const content = document.getElementById('resultadoBienestar');
+        const btn = document.querySelector('.btn-primary-custom');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analizando...';
+        content.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2">Evaluando tu bienestar...</p>
+            </div>
+        `;
+
+        try {
+            const datos = {
+                estado_animo: document.getElementById('estadoAnimo').value,
+                nivel_estres: parseInt(document.getElementById('nivelEstres').value),
+                horas_sueno: parseFloat(document.getElementById('horasSueno').value),
+                actividad_fisica: document.getElementById('actividadFisica').checked
+            };
+
+            const res = await fetch(`${API_URL}/bienestar/evaluar/${ESTUDIANTE_ID}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                const r = data.data;
+                const niveles = {
+                    'Saludable': 'success',
+                    'Riesgo Leve': 'warning',
+                    'Riesgo Moderado': '#f97316',
+                    'Riesgo Alto': 'danger'
+                };
+                const nivelClass = r.nivel_general.replace(' ', '-').toLowerCase();
+
+                content.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: 900; color: ${niveles[r.nivel_general] || 'var(--text-light)'};">
+                                    ${r.nivel_general}
+                                </div>
+                                <div class="mt-2" style="font-size: 0.9rem; color: var(--text-muted);">Nivel de Bienestar</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: rgba(255,255,255,0.02); border-radius: 16px; padding: 1.5rem;">
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted);">Ansiedad</div>
+                                        <div style="font-weight: 700;">${r.evaluacion?.ansiedad || 0}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted);">Depresión</div>
+                                        <div style="font-weight: 700;">${r.evaluacion?.depresion || 0}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted);">Motivación</div>
+                                        <div style="font-weight: 700;">${r.evaluacion?.motivacion || 0}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted);">Apoyo Social</div>
+                                        <div style="font-weight: 700;">${r.evaluacion?.apoyo_social || 0}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${r.recomendaciones && r.recomendaciones.length > 0 ? `
+                        <div class="mt-3">
+                            <h6 style="font-size: 0.9rem;"><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Recomendaciones</h6>
+                            ${r.recomendaciones.map(rec => `
+                                <div style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--accent); padding: 0.5rem 1rem; margin-bottom: 0.3rem; border-radius: 4px;">
+                                    <strong style="font-size: 0.8rem;">${rec.area}:</strong>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">${rec.mensaje}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+
+                // Actualizar recursos
+                if (r.recursos_recomendados && r.recursos_recomendados.length > 0) {
+                    const recursosDiv = document.getElementById('recursosBienestar');
+                    recursosDiv.innerHTML = r.recursos_recomendados.map(rec => `
+                        <div class="col-md-4">
+                            <div class="recurso-card text-center">
+                                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                <h6 class="mt-1" style="font-size: 0.9rem;">${rec}</h6>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Evaluación Completada',
+                    text: `Tu nivel de bienestar es: ${r.nivel_general}`,
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    confirmButtonColor: '#3b82f6',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        } catch (error) {
+            console.error('Error evaluando bienestar:', error);
+            content.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger);"></i>
+                    <p class="text-danger mt-2">Error al evaluar el bienestar</p>
+                </div>
+            `;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-stethoscope me-2"></i>Evaluar Bienestar';
+        }
+    }
+</script>
+</body>
+</html>

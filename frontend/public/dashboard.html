@@ -1401,6 +1401,25 @@
             <i class="fas fa-calendar"></i> Calendario
         </a>
 
+        <!-- ====== NUEVOS MÓDULOS AGREGADOS ====== -->
+        <div class="menu-label">Módulos Avanzados</div>
+        <a data-page="mapa">
+            <i class="fas fa-map-marked-alt"></i> Mapa Educativo
+        </a>
+        <a data-page="talento">
+            <i class="fas fa-star"></i> Detector de Talento
+        </a>
+        <a data-page="gemelo">
+            <i class="fas fa-robot"></i> Gemelo Digital
+        </a>
+        <a data-page="bienestar">
+            <i class="fas fa-heart"></i> Bienestar
+        </a>
+        <a data-page="oportunidades">
+            <i class="fas fa-gift"></i> Oportunidades
+        </a>
+        <!-- ====================================== -->
+
         <div class="menu-label">Sistema</div>
         <a data-page="configuracion">
             <i class="fas fa-cog"></i> Configuración
@@ -2074,7 +2093,13 @@
             cursos: 'Cursos <small>· Catálogo académico</small>',
             calendario: 'Calendario <small>· Eventos y fechas</small>',
             configuracion: 'Configuración <small>· Ajustes del sistema</small>',
-            ayuda: 'Ayuda <small>· Centro de soporte</small>'
+            ayuda: 'Ayuda <small>· Centro de soporte</small>',
+            // Nuevos títulos
+            mapa: 'Mapa Educativo <small>· Rutas de aprendizaje</small>',
+            talento: 'Detector de Talento <small>· Descubre habilidades</small>',
+            gemelo: 'Gemelo Digital <small>· Tu réplica académica</small>',
+            bienestar: 'Bienestar <small>· Salud y equilibrio</small>',
+            oportunidades: 'Oportunidades <small>· Conexiones y crecimiento</small>'
         };
         document.getElementById('pageTitle').innerHTML = titles[page] || page;
 
@@ -2092,6 +2117,7 @@
 
     // ============ OBTENER CONTENIDO DE CADA PÁGINA ============
     function obtenerContenidoPagina(page) {
+        // Mapeo de funciones de renderizado
         const funciones = {
             dashboard: renderDashboard,
             estudiantes: renderEstudiantes,
@@ -2101,9 +2127,432 @@
             cursos: renderCursos,
             calendario: renderCalendario,
             configuracion: renderConfiguracion,
-            ayuda: renderAyuda
+            ayuda: renderAyuda,
+            // Nuevas páginas
+            mapa: renderMapa,
+            talento: renderTalento,
+            gemelo: renderGemelo,
+            bienestar: renderBienestar,
+            oportunidades: renderOportunidades
         };
         return funciones[page] ? funciones[page]() : renderNotFound();
+    }
+
+    // ============ NUEVAS FUNCIONES DE RENDERIZADO ============
+    function renderMapa() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>🗺️ Mapa Educativo</h3>
+                    <p>Visualiza tu ruta de aprendizaje y descubre nuevas áreas de conocimiento</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="chart-card" style="min-height: 400px;">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-route me-2" style="color: var(--accent);"></i>Tu Ruta de Aprendizaje</h6>
+                            </div>
+                            <div class="text-center py-5">
+                                <i class="fas fa-map fa-4x" style="color: var(--accent-light); opacity: 0.5;"></i>
+                                <p class="text-muted mt-3">Mapa interactivo en construcción</p>
+                                <div class="d-flex justify-content-center gap-3 mt-3">
+                                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 0.5rem 1rem;">✅ Matemáticas</span>
+                                    <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: var(--accent); padding: 0.5rem 1rem;">🔵 Programación</span>
+                                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: var(--warning); padding: 0.5rem 1rem;">🟡 Física</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <h6 class="mb-3"><i class="fas fa-lightbulb me-2" style="color: var(--warning);"></i>Recomendaciones</h6>
+                            <div class="d-flex align-items-center gap-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.05);">
+                                <span style="font-size: 1.5rem;">📊</span>
+                                <div>
+                                    <div class="fw-bold">Curso de Estadística</div>
+                                    <small class="text-muted">Recomendado para tu perfil</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.05);">
+                                <span style="font-size: 1.5rem;">🧠</span>
+                                <div>
+                                    <div class="fw-bold">Machine Learning</div>
+                                    <small class="text-muted">Basado en tus intereses</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 py-2">
+                                <span style="font-size: 1.5rem;">🌐</span>
+                                <div>
+                                    <div class="fw-bold">Redes de Computadoras</div>
+                                    <small class="text-muted">Habilidad en demanda</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderTalento() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>⭐ Detector de Talento</h3>
+                    <p>Identifica y desarrolla tus habilidades más fuertes</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="stat-card blue">
+                            <div class="stat-top">
+                                <div class="stat-icon blue"><i class="fas fa-brain"></i></div>
+                            </div>
+                            <div class="stat-number">92</div>
+                            <div class="stat-label">Razonamiento Lógico</div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 0.5rem; overflow: hidden;">
+                                <div style="height: 100%; width: 92%; background: var(--accent-gradient); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="stat-card green">
+                            <div class="stat-top">
+                                <div class="stat-icon green"><i class="fas fa-puzzle-piece"></i></div>
+                            </div>
+                            <div class="stat-number">78</div>
+                            <div class="stat-label">Creatividad</div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 0.5rem; overflow: hidden;">
+                                <div style="height: 100%; width: 78%; background: var(--success); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="stat-card yellow">
+                            <div class="stat-top">
+                                <div class="stat-icon yellow"><i class="fas fa-users"></i></div>
+                            </div>
+                            <div class="stat-number">85</div>
+                            <div class="stat-label">Trabajo en Equipo</div>
+                            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 0.5rem; overflow: hidden;">
+                                <div style="height: 100%; width: 85%; background: var(--warning); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-card mt-4">
+                    <div class="table-header">
+                        <h6>Tus Habilidades</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Habilidad</th>
+                                    <th>Nivel</th>
+                                    <th>Progreso</th>
+                                    <th>Recomendación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fas fa-code me-2" style="color: var(--accent);"></i>Programación</td>
+                                    <td><span class="status-badge active">Avanzado</span></td>
+                                    <td><div style="width: 85%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;"><div style="height: 100%; width: 85%; background: var(--accent-gradient); border-radius: 10px;"></div></div></td>
+                                    <td>Practica algoritmos</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-calculator me-2" style="color: var(--success);"></i>Matemáticas</td>
+                                    <td><span class="status-badge active">Intermedio</span></td>
+                                    <td><div style="width: 65%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;"><div style="height: 100%; width: 65%; background: var(--success); border-radius: 10px;"></div></div></td>
+                                    <td>Refuerza cálculo</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-paint-brush me-2" style="color: var(--warning);"></i>Diseño</td>
+                                    <td><span class="status-badge riesgo">Básico</span></td>
+                                    <td><div style="width: 40%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;"><div style="height: 100%; width: 40%; background: var(--warning); border-radius: 10px;"></div></div></td>
+                                    <td>Toma un curso de UI/UX</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderGemelo() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>🤖 Gemelo Digital</h3>
+                    <p>Tu réplica académica: análisis predictivo y recomendaciones personalizadas</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-user-circle me-2" style="color: var(--accent);"></i>Perfil Académico</h6>
+                            </div>
+                            <div class="text-center">
+                                <img src="https://ui-avatars.com/api/?name=Renzo+Quispe&background=3b82f6&color=fff&size=120" class="rounded-circle mb-3" style="border: 3px solid var(--accent);">
+                                <h5>Renzo Quispe Mamani</h5>
+                                <p class="text-muted">Ingeniería de Sistemas · 5to Semestre</p>
+                                <div class="d-flex justify-content-center gap-4">
+                                    <div><span class="text-muted">Predicción</span><br><span class="fw-bold" style="color: var(--success);">90%</span></div>
+                                    <div><span class="text-muted">Riesgo</span><br><span class="fw-bold" style="color: var(--success);">Bajo</span></div>
+                                    <div><span class="text-muted">Recomendación</span><br><span class="fw-bold" style="color: var(--accent);">Mantener</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-chart-pie me-2" style="color: var(--warning);"></i>Análisis de Datos</h6>
+                            </div>
+                            <div class="text-center py-3">
+                                <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                                    <canvas id="gemeloChart"></canvas>
+                                </div>
+                                <div class="d-flex justify-content-center gap-3 mt-3">
+                                    <span><span style="color: var(--success);">●</span> Rendimiento 85%</span>
+                                    <span><span style="color: var(--warning);">●</span> Participación 70%</span>
+                                    <span><span style="color: var(--accent);">●</span> Asistencia 95%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-card mt-4">
+                    <div class="table-header">
+                        <h6>Recomendaciones del Gemelo Digital</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Área</th>
+                                    <th>Diagnóstico</th>
+                                    <th>Acción Recomendada</th>
+                                    <th>Prioridad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>📚 Matemáticas</td>
+                                    <td>Rendimiento por debajo del promedio</td>
+                                    <td>Refuerzo en cálculo diferencial</td>
+                                    <td><span class="status-badge riesgo">Alta</span></td>
+                                </tr>
+                                <tr>
+                                    <td>💻 Programación</td>
+                                    <td>Rendimiento excelente</td>
+                                    <td>Proyectos de código abierto</td>
+                                    <td><span class="status-badge active">Media</span></td>
+                                </tr>
+                                <tr>
+                                    <td>🗣️ Comunicación</td>
+                                    <td>Participación baja en clases</td>
+                                    <td>Talleres de oratoria</td>
+                                    <td><span class="status-badge active">Media</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderBienestar() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>❤️ Bienestar Estudiantil</h3>
+                    <p>Tu salud y equilibrio son importantes para tu éxito académico</p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-lg-3">
+                        <div class="stat-card green">
+                            <div class="stat-top">
+                                <div class="stat-icon green"><i class="fas fa-heart"></i></div>
+                            </div>
+                            <div class="stat-number">8.5</div>
+                            <div class="stat-label">Nivel de Bienestar</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="stat-card yellow">
+                            <div class="stat-top">
+                                <div class="stat-icon yellow"><i class="fas fa-moon"></i></div>
+                            </div>
+                            <div class="stat-number">6h</div>
+                            <div class="stat-label">Sueño Promedio</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="stat-card blue">
+                            <div class="stat-top">
+                                <div class="stat-icon blue"><i class="fas fa-spa"></i></div>
+                            </div>
+                            <div class="stat-number">45</div>
+                            <div class="stat-label">Minutos de Meditación</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="stat-card red">
+                            <div class="stat-top">
+                                <div class="stat-icon red"><i class="fas fa-running"></i></div>
+                            </div>
+                            <div class="stat-number">3x</div>
+                            <div class="stat-label">Ejercicio por Semana</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-8">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h6><i class="fas fa-chart-line me-2" style="color: var(--success);"></i>Evolución del Bienestar</h6>
+                            </div>
+                            <canvas id="bienestarChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="chart-card">
+                            <h6 class="mb-3"><i class="fas fa-lightbulb me-2" style="color: var(--warning);"></i>Consejos para Hoy</h6>
+                            <div class="d-flex align-items-center gap-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.05);">
+                                <span style="font-size: 1.5rem;">🧘</span>
+                                <div>
+                                    <div class="fw-bold">Medita 10 min</div>
+                                    <small class="text-muted">Reduce el estrés y mejora el enfoque</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 py-2 border-bottom" style="border-color: rgba(255,255,255,0.05);">
+                                <span style="font-size: 1.5rem;">🚶</span>
+                                <div>
+                                    <div class="fw-bold">Camina 30 min</div>
+                                    <small class="text-muted">Aire fresco y claridad mental</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 py-2">
+                                <span style="font-size: 1.5rem;">📝</span>
+                                <div>
+                                    <div class="fw-bold">Escribe tus logros</div>
+                                    <small class="text-muted">Refuerza tu autoestima</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderOportunidades() {
+        return `
+            <div class="page-content">
+                <div class="page-header">
+                    <h3>🎯 Oportunidades</h3>
+                    <p>Conecta con pasantías, proyectos y redes profesionales</p>
+                </div>
+                <div class="action-grid mb-4">
+                    <div class="action-card" onclick="oportunidad('pasantias')">
+                        <i class="fas fa-briefcase"></i>
+                        <h6>Pasantías</h6>
+                        <p>15 oportunidades activas</p>
+                    </div>
+                    <div class="action-card" onclick="oportunidad('proyectos')">
+                        <i class="fas fa-project-diagram"></i>
+                        <h6>Proyectos</h6>
+                        <p>8 proyectos disponibles</p>
+                    </div>
+                    <div class="action-card" onclick="oportunidad('networking')">
+                        <i class="fas fa-handshake"></i>
+                        <h6>Networking</h6>
+                        <p>12 conexiones sugeridas</p>
+                    </div>
+                    <div class="action-card" onclick="oportunidad('mentorias')">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h6>Mentorías</h6>
+                        <p>6 mentores disponibles</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <div class="table-header">
+                        <h6>Oportunidades Recientes</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Oportunidad</th>
+                                    <th>Empresa/Organización</th>
+                                    <th>Tipo</th>
+                                    <th>Fecha Límite</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Desarrollador Frontend</strong></td>
+                                    <td>TechSolutions</td>
+                                    <td><span class="status-badge active">Pasantía</span></td>
+                                    <td>30 Jun 2025</td>
+                                    <td><button class="btn btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularOportunidad()">Postular</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Análisis de Datos</strong></td>
+                                    <td>DataLab</td>
+                                    <td><span class="status-badge riesgo">Proyecto</span></td>
+                                    <td>15 Jul 2025</td>
+                                    <td><button class="btn btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularOportunidad()">Postular</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mentoría en IA</strong></td>
+                                    <td>AI Academy</td>
+                                    <td><span class="status-badge active">Mentoría</span></td>
+                                    <td>10 Jun 2025</td>
+                                    <td><button class="btn btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularOportunidad()">Solicitar</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ============ FUNCIONES DE ACCIÓN PARA OPORTUNIDADES ============
+    function oportunidad(tipo) {
+        const nombres = {
+            'pasantias': '💼 Pasantías',
+            'proyectos': '📊 Proyectos',
+            'networking': '🤝 Networking',
+            'mentorias': '🎓 Mentorías'
+        };
+        Swal.fire({
+            icon: 'info',
+            title: nombres[tipo] || 'Oportunidades',
+            text: 'Explora todas las oportunidades disponibles en esta categoría',
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: 'Ver más'
+        });
+    }
+
+    function postularOportunidad() {
+        Swal.fire({
+            icon: 'success',
+            title: '✅ Postulación Exitosa',
+            text: 'Tu solicitud ha sido enviada. Recibirás notificaciones por correo.',
+            background: '#0f172a',
+            color: '#f8fafc',
+            confirmButtonColor: '#3b82f6',
+            confirmButtonText: '¡Genial!'
+        });
+        registrarAccion('beca_postulada');
     }
 
     // ============ PÁGINA: DASHBOARD ============
@@ -2724,6 +3173,61 @@
             cargarBecasFull();
         } else if (page === 'cursos') {
             cargarCursos();
+        } else if (page === 'gemelo') {
+            // Inicializar gráfico del gemelo digital
+            setTimeout(() => {
+                const ctx = document.getElementById('gemeloChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Rendimiento', 'Participación', 'Asistencia'],
+                            datasets: [{
+                                data: [85, 70, 95],
+                                backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            cutout: '70%',
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+            }, 300);
+        } else if (page === 'bienestar') {
+            setTimeout(() => {
+                const ctx = document.getElementById('bienestarChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Nivel de Bienestar',
+                                data: [7, 7.5, 8, 8.2, 8.5, 8.5],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                pointBackgroundColor: '#10b981',
+                                pointBorderColor: '#0f172a',
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { beginAtZero: true, max: 10, grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                                x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                            }
+                        }
+                    });
+                }
+            }, 300);
         }
     }
 
