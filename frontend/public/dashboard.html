@@ -20,6 +20,9 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
+    <!-- html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -540,6 +543,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes pulse-audio {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         /* ============ STATS CARDS ============ */
         .stats-grid {
             display: grid;
@@ -893,6 +901,13 @@
             transform: scale(1.02);
         }
 
+        .chat-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
         /* ============ TIMELINE ============ */
         .timeline {
             position: relative;
@@ -1037,6 +1052,19 @@
         .btn-outline-custom:hover {
             background: rgba(255,255,255,0.05);
             color: white;
+        }
+
+        /* ============ RANKING SECTION ============ */
+        .ranking-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .ranking-section .table-card {
+            padding: 0.5rem;
+        }
+
+        .ranking-section table td {
+            padding: 0.4rem 0.5rem;
         }
 
         /* ============ RESPONSIVE ============ */
@@ -1327,6 +1355,10 @@
         body.light-mode .btn-outline-secondary:hover {
             background: rgba(0,0,0,0.05) !important;
         }
+
+        body.light-mode .ranking-section .table-card {
+            background: rgba(255,255,255,0.8);
+        }
     </style>
 </head>
 <body>
@@ -1467,6 +1499,9 @@
 <script>
     const API_URL = 'http://localhost:3000/api';
     let permanenciaChart, riesgoChart;
+    let synth = window.speechSynthesis;
+    let utterance = null;
+    let lastResponse = '';
 
     // ============ SIDEBAR TOGGLE ============
     const sidebar = document.getElementById('sidebar');
@@ -1488,10 +1523,8 @@
         const isLight = body.classList.toggle('light-mode');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
         
-        // Animación de transición
         body.style.transition = 'all 0.3s ease';
         
-        // Actualizar iconos
         const toggle = document.querySelector('.theme-toggle');
         if (toggle) {
             const sunIcon = toggle.querySelector('.fa-sun');
@@ -1519,6 +1552,306 @@
         }
     }
 
+    // ============ TEXTO A VOZ ============
+    function configurarVoz() {
+        if (!synth) {
+            console.warn('Web Speech API no soportada en este navegador');
+            return false;
+        }
+        return true;
+    }
+
+    function leerEnVozAlta(texto) {
+        if (!configurarVoz()) {
+            Swal.fire({
+                icon: 'warning',
+                title: '⚠️ No soportado',
+                text: 'Tu navegador no soporta texto a voz',
+                background: '#0f172a',
+                color: '#f8fafc',
+                confirmButtonColor: '#3b82f6'
+            });
+            return;
+        }
+        
+        if (synth.speaking) {
+            synth.cancel();
+        }
+        
+        utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        const voices = synth.getVoices();
+        const spanishVoice = voices.find(voice => voice.lang.includes('es'));
+        if (spanishVoice) {
+            utterance.voice = spanishVoice;
+        }
+        
+        utterance.onstart = () => {
+            const btn = document.querySelector('[onclick="leerRespuesta()"]');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-stop"></i>';
+                btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                btn.style.borderColor = '#ef4444';
+            }
+            const chatContainer = document.getElementById('chatMessagesTutor');
+            if (chatContainer) {
+                const indicator = document.createElement('div');
+                indicator.id = 'audioIndicator';
+                indicator.style.cssText = `
+                    text-align: center;
+                    color: #3b82f6;
+                    font-size: 0.8rem;
+                    padding: 0.3rem;
+                    animation: pulse-audio 1s infinite;
+                `;
+                indicator.innerHTML = '🔊 Reproduciendo...';
+                chatContainer.appendChild(indicator);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        };
+        
+        utterance.onend = () => {
+            const btn = document.querySelector('[onclick="leerRespuesta()"]');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }
+            const indicator = document.getElementById('audioIndicator');
+            if (indicator) indicator.remove();
+        };
+        
+        utterance.onerror = (event) => {
+            console.error('Error al reproducir:', event);
+            const btn = document.querySelector('[onclick="leerRespuesta()"]');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }
+            const indicator = document.getElementById('audioIndicator');
+            if (indicator) indicator.remove();
+        };
+        
+        synth.speak(utterance);
+    }
+
+    function detenerVoz() {
+        if (synth && synth.speaking) {
+            synth.cancel();
+            const btn = document.querySelector('[onclick="leerRespuesta()"]');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }
+            const indicator = document.getElementById('audioIndicator');
+            if (indicator) indicator.remove();
+        }
+    }
+
+    function leerRespuesta() {
+        const chatContainer = document.getElementById('chatMessagesTutor');
+        if (!chatContainer) return;
+        
+        const messages = chatContainer.querySelectorAll('.chat-message.bot');
+        if (messages.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Sin mensajes',
+                text: 'No hay respuestas para leer',
+                background: '#0f172a',
+                color: '#f8fafc',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return;
+        }
+        
+        const lastMessage = messages[messages.length - 1];
+        let texto = lastMessage.textContent || '';
+        texto = texto.replace(/[🤖]/g, '').trim();
+        
+        if (!texto) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Sin texto',
+                text: 'No hay texto para leer',
+                background: '#0f172a',
+                color: '#f8fafc',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return;
+        }
+        
+        leerEnVozAlta(texto);
+    }
+
+    if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
+    }
+
+    // ============ EXPORTAR A PDF ============
+    function exportarPDF() {
+        Swal.fire({
+            title: 'Generando PDF...',
+            text: 'Preparando el reporte de estadísticas',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const contenido = document.createElement('div');
+        contenido.style.padding = '40px';
+        contenido.style.fontFamily = 'Arial, sans-serif';
+        contenido.style.background = 'white';
+        contenido.style.color = '#1a1a2e';
+        
+        const totalEstudiantes = document.getElementById('totalEstudiantes')?.textContent || '0';
+        const activos = document.getElementById('estudiantesActivos')?.textContent || '0';
+        const enRiesgo = document.getElementById('estudiantesRiesgo')?.textContent || '0';
+        const abandonados = document.getElementById('abandonados')?.textContent || '0';
+        
+        contenido.innerHTML = `
+            <div style="text-align: center; border-bottom: 3px solid #3b82f6; padding-bottom: 20px; margin-bottom: 20px;">
+                <h1 style="font-size: 28px; margin: 0; color: #1a237e;">
+                    <span style="color: #3b82f6;">ALLIN</span> YACHAY
+                </h1>
+                <p style="color: #666; margin: 5px 0 0;">"Ningún estudiante atrás"</p>
+                <p style="color: #999; font-size: 12px;">Reporte generado: ${new Date().toLocaleString()}</p>
+            </div>
+
+            <h2 style="color: #1a237e; margin-top: 20px;">📊 Resumen General</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0;">
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #3b82f6;">
+                    <div style="font-size: 24px; font-weight: bold; color: #3b82f6;">${totalEstudiantes}</div>
+                    <div style="color: #666; font-size: 12px;">Total Estudiantes</div>
+                </div>
+                <div style="background: #f0fff4; padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #10b981;">
+                    <div style="font-size: 24px; font-weight: bold; color: #10b981;">${activos}</div>
+                    <div style="color: #666; font-size: 12px;">Activos</div>
+                </div>
+                <div style="background: #fffbeb; padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #f59e0b;">
+                    <div style="font-size: 24px; font-weight: bold; color: #f59e0b;">${enRiesgo}</div>
+                    <div style="color: #666; font-size: 12px;">En Riesgo</div>
+                </div>
+                <div style="background: #fef2f2; padding: 15px; border-radius: 10px; text-align: center; border-left: 4px solid #ef4444;">
+                    <div style="font-size: 24px; font-weight: bold; color: #ef4444;">${abandonados}</div>
+                    <div style="color: #666; font-size: 12px;">Abandonaron</div>
+                </div>
+            </div>
+
+            <h2 style="color: #1a237e; margin-top: 20px;">📈 Tasa de Permanencia</h2>
+            <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 10px 0;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: #666;">Tasa actual</span>
+                    <span style="font-weight: bold; color: #3b82f6;">${((parseInt(activos) / parseInt(totalEstudiantes || 1)) * 100).toFixed(1) || 85}%</span>
+                </div>
+                <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, #3b82f6, #8b5cf6); height: 100%; width: ${((parseInt(activos) / parseInt(totalEstudiantes || 1)) * 100) || 85}%; border-radius: 5px;"></div>
+                </div>
+            </div>
+
+            <h2 style="color: #1a237e; margin-top: 20px;">🎯 Distribución de Riesgo</h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+                <div style="background: #f0fff4; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; color: #10b981;">720</div>
+                    <div style="color: #666; font-size: 12px;">Bajo Riesgo</div>
+                </div>
+                <div style="background: #fffbeb; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; color: #f59e0b;">285</div>
+                    <div style="color: #666; font-size: 12px;">Riesgo Medio</div>
+                </div>
+                <div style="background: #fef2f2; padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: bold; color: #ef4444;">95</div>
+                    <div style="color: #666; font-size: 12px;">Alto Riesgo</div>
+                </div>
+            </div>
+
+            <h2 style="color: #1a237e; margin-top: 20px;">👨‍🎓 Top Estudiantes</h2>
+            <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+                <thead>
+                    <tr style="background: #f1f5f9;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">#</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Nombre</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Puntos</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #e2e8f0;">Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${estudiantesRanking.slice(0, 5).map((est, i) => `
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">${i + 1}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">${est.nombre}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold; color: #f59e0b;">${est.puntos.toLocaleString()}</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Nivel ${est.nivel}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; color: #999; font-size: 12px;">
+                <p>ALLIN YACHAY - Ecosistema Educativo con IA</p>
+                <p>Cusco, Perú - ${new Date().getFullYear()}</p>
+            </div>
+        `;
+
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `ALLIN-YACHAY-Reporte-${new Date().toISOString().slice(0,10)}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                letterRendering: true
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait' 
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        Swal.close();
+
+        html2pdf()
+            .set(opt)
+            .from(contenido)
+            .save()
+            .then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ PDF Generado',
+                    text: 'El reporte ha sido descargado exitosamente',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    confirmButtonColor: '#3b82f6',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            })
+            .catch((error) => {
+                console.error('Error al generar PDF:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Error',
+                    text: 'No se pudo generar el PDF',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    confirmButtonColor: '#3b82f6'
+                });
+            });
+    }
+
     // ============ GAMIFICACIÓN ============
     function ganarPuntos(cantidad, accion) {
         const puntosElement = document.getElementById('puntosUsuario');
@@ -1528,7 +1861,6 @@
         const nuevosPuntos = puntosActuales + cantidad;
         puntosElement.textContent = nuevosPuntos.toLocaleString();
         
-        // Animación de puntos
         puntosElement.style.transform = 'scale(1.3)';
         puntosElement.style.color = '#f59e0b';
         setTimeout(() => {
@@ -1536,25 +1868,21 @@
             puntosElement.style.color = '';
         }, 500);
         
-        // Actualizar barra de progreso
         const progreso = document.getElementById('progresoNivel');
         const barra = document.getElementById('barraProgreso');
         if (progreso && barra) {
             let nuevoProgreso = parseInt(progreso.textContent) + (cantidad / 10);
             if (nuevoProgreso > 100) {
                 nuevoProgreso = 0;
-                // Subir de nivel
                 const levelNumber = document.querySelector('.level-number');
                 if (levelNumber) {
                     const nivelActual = parseInt(levelNumber.textContent.replace('Nivel ', ''));
                     levelNumber.textContent = `Nivel ${nivelActual + 1}`;
-                    // Cambiar título
                     const levelLabel = document.querySelector('.level-label');
                     const labels = ['Novato', 'Aprendiz', 'Estudiante', 'Avanzado', 'Experto', 'Maestro', 'Élite', 'Leyenda'];
                     const nuevoLabel = labels[(nivelActual + 1) % labels.length] || 'Leyenda';
                     if (levelLabel) levelLabel.textContent = nuevoLabel;
                     
-                    // Notificación de subida de nivel
                     Swal.fire({
                         icon: 'success',
                         title: '🎉 ¡Subiste de Nivel!',
@@ -1570,6 +1898,9 @@
             progreso.textContent = `${Math.min(nuevoProgreso, 100)}%`;
             barra.style.width = `${Math.min(nuevoProgreso, 100)}%`;
         }
+        
+        // Actualizar ranking
+        actualizarRanking('Renzo Quispe', cantidad);
     }
 
     function registrarAccion(tipo) {
@@ -1632,31 +1963,96 @@
         });
     }
 
+    // ============ RANKING DE ESTUDIANTES ============
+    const estudiantesRanking = [
+        { nombre: 'Renzo Quispe', puntos: 2450, nivel: 7, insignias: 5, avatar: 'RQ' },
+        { nombre: 'María Ccorahua', puntos: 2100, nivel: 6, insignias: 4, avatar: 'MC' },
+        { nombre: 'Carlos Huamaní', puntos: 1850, nivel: 5, insignias: 3, avatar: 'CH' },
+        { nombre: 'Ana Huamán', puntos: 1600, nivel: 4, insignias: 3, avatar: 'AH' },
+        { nombre: 'Luis Chávez', puntos: 1400, nivel: 4, insignias: 2, avatar: 'LC' },
+        { nombre: 'Elena Quispe', puntos: 1200, nivel: 3, insignias: 2, avatar: 'EQ' },
+        { nombre: 'José Mamani', puntos: 950, nivel: 3, insignias: 1, avatar: 'JM' },
+        { nombre: 'Rosa Sullca', puntos: 800, nivel: 2, insignias: 1, avatar: 'RS' },
+        { nombre: 'Pedro Huaman', puntos: 600, nivel: 2, insignias: 0, avatar: 'PH' },
+        { nombre: 'Lucía Quispe', puntos: 400, nivel: 1, insignias: 0, avatar: 'LQ' }
+    ];
+
+    const medallas = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+
+    function cargarRanking() {
+        const tbody = document.getElementById('rankingTable');
+        if (!tbody) return;
+        
+        const sorted = [...estudiantesRanking].sort((a, b) => b.puntos - a.puntos);
+        const colores = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899', '#f97316', '#14b8a6', '#6366f1'];
+        
+        tbody.innerHTML = sorted.map((est, i) => {
+            const nivelEmoji = ['🌱', '🌿', '🌳', '🌟', '⭐', '🏅', '🎯', '👑', '💎', '🔥'][est.nivel - 1] || '⭐';
+            const progressWidth = (est.puntos / 3000) * 100;
+            const badgeIcons = ['🥇', '🥈', '🥉', '🤖', '👥', '📚'];
+            
+            return `
+                <tr>
+                    <td style="font-weight: 800; font-size: 1.1rem;">${medallas[i] || `${i+1}.`}</td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar" style="background: ${colores[i % colores.length]};">${est.avatar}</div>
+                            <div>
+                                <div class="name">${est.nombre}</div>
+                                <div style="font-size: 0.65rem; color: var(--text-muted);">${est.nivel === 7 ? '🏆 Estudiante Élite' : 'Estudiante'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 900; color: #f59e0b;">${est.puntos.toLocaleString()}</div>
+                        <div style="width: 80px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: ${Math.min(progressWidth, 100)}%; border-radius: 10px;"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700;">
+                            ${nivelEmoji} Nivel ${est.nivel}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 0.2rem;">
+                            ${Array.from({length: Math.min(est.insignias, 5)}, (_, j) => `
+                                <span style="font-size: 1rem;">${badgeIcons[j] || '🏅'}</span>
+                            `).join('')}
+                            ${est.insignias > 5 ? `<span style="font-size: 0.7rem; color: var(--text-muted);">+${est.insignias - 5}</span>` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function actualizarRanking(nombre, puntos) {
+        const estudiante = estudiantesRanking.find(e => e.nombre === nombre);
+        if (estudiante) {
+            estudiante.puntos += puntos;
+            const nuevoNivel = Math.floor(estudiante.puntos / 400) + 1;
+            if (nuevoNivel > estudiante.nivel) {
+                estudiante.nivel = nuevoNivel;
+                if (nuevoNivel % 3 === 0) {
+                    estudiante.insignias += 1;
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 ¡Nueva Insignia!',
+                        text: `${estudiante.nombre} ha ganado una nueva insignia`,
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#3b82f6',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            }
+            cargarRanking();
+        }
+    }
+
     // ============ NAVEGACIÓN ============
-    const pages = {
-        dashboard: 'dashboard',
-        estudiantes: 'estudiantes',
-        predicciones: 'predicciones',
-        tutor: 'tutor',
-        becas: 'becas',
-        cursos: 'cursos',
-        calendario: 'calendario',
-        configuracion: 'configuracion',
-        ayuda: 'ayuda'
-    };
-
-    const pageTitles = {
-        dashboard: 'Dashboard <small>· Vista general</small>',
-        estudiantes: 'Estudiantes <small>· Gestión académica</small>',
-        predicciones: 'Predicciones <small>· Análisis de riesgo</small>',
-        tutor: 'Tutor IA <small>· Asistente académico</small>',
-        becas: 'Becas <small>· Oportunidades educativas</small>',
-        cursos: 'Cursos <small>· Catálogo académico</small>',
-        calendario: 'Calendario <small>· Eventos y fechas</small>',
-        configuracion: 'Configuración <small>· Ajustes del sistema</small>',
-        ayuda: 'Ayuda <small>· Centro de soporte</small>'
-    };
-
     document.querySelectorAll('.sidebar-menu a[data-page]').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -1668,7 +2064,19 @@
     function navegarA(page) {
         document.querySelectorAll('.sidebar-menu a[data-page]').forEach(el => el.classList.remove('active'));
         document.querySelector(`.sidebar-menu a[data-page="${page}"]`)?.classList.add('active');
-        document.getElementById('pageTitle').innerHTML = pageTitles[page] || page;
+        
+        const titles = {
+            dashboard: 'Dashboard <small>· Vista general</small>',
+            estudiantes: 'Estudiantes <small>· Gestión académica</small>',
+            predicciones: 'Predicciones <small>· Análisis de riesgo</small>',
+            tutor: 'Tutor IA <small>· Asistente académico</small>',
+            becas: 'Becas <small>· Oportunidades educativas</small>',
+            cursos: 'Cursos <small>· Catálogo académico</small>',
+            calendario: 'Calendario <small>· Eventos y fechas</small>',
+            configuracion: 'Configuración <small>· Ajustes del sistema</small>',
+            ayuda: 'Ayuda <small>· Centro de soporte</small>'
+        };
+        document.getElementById('pageTitle').innerHTML = titles[page] || page;
 
         const container = document.getElementById('pageContainer');
         container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="text-muted mt-2">Cargando...</p></div>';
@@ -1702,6 +2110,35 @@
     function renderDashboard() {
         return `
             <div class="page-content">
+                <!-- Ranking -->
+                <div class="ranking-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 style="font-weight: 700; margin: 0;">
+                            <i class="fas fa-trophy" style="color: #f59e0b;"></i>
+                            Ranking de Estudiantes
+                        </h6>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Top 10</span>
+                    </div>
+                    <div class="table-card" style="padding: 0.5rem;">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th>Estudiante</th>
+                                        <th>Puntos</th>
+                                        <th>Nivel</th>
+                                        <th>Insignias</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rankingTable">
+                                    <!-- Se carga con JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="stats-grid" id="statsGrid">
                     <div class="stat-card blue">
                         <div class="stat-top">
@@ -1751,6 +2188,11 @@
                 <div class="table-card">
                     <div class="table-header">
                         <h6><i class="fas fa-users me-2" style="color: var(--accent);"></i>Últimos Estudiantes</h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary-custom" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="exportarPDF()">
+                                <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                            </button>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -1909,6 +2351,14 @@
                                 <input type="text" id="preguntaInputTutor" placeholder="Escribe tu pregunta..." />
                                 <button id="enviarPreguntaTutorBtn">
                                     <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="chat-actions">
+                                <button onclick="leerRespuesta()" class="btn btn-outline-custom" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-color: rgba(255,255,255,0.1);" title="Leer respuesta en voz alta">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button onclick="detenerVoz()" class="btn btn-outline-custom" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-color: rgba(255,255,255,0.1);" title="Detener reproducción">
+                                    <i class="fas fa-stop"></i>
                                 </button>
                             </div>
                             <div class="mt-2 d-flex gap-2 flex-wrap">
@@ -2263,6 +2713,7 @@
     function inicializarPagina(page) {
         if (page === 'dashboard') {
             cargarDashboard();
+            cargarRanking();
         } else if (page === 'estudiantes') {
             cargarEstudiantesFull();
         } else if (page === 'predicciones') {
@@ -2494,14 +2945,34 @@
             });
             const data = await res.json();
             loading.remove();
+            const respuesta = data.data?.respuesta || 'No entendí, intenta de nuevo.';
             const botMsg = document.createElement('div');
             botMsg.className = 'chat-message bot';
-            botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${data.data?.respuesta || 'No entendí, intenta de nuevo.'}`;
+            botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${respuesta}`;
             chat.appendChild(botMsg);
             chat.scrollTop = chat.scrollHeight;
             
-            // Registra la acción de pregunta para gamificación
+            lastResponse = respuesta;
             registrarAccion('pregunta');
+            
+            // Preguntar si quiere escuchar la respuesta
+            Swal.fire({
+                icon: 'question',
+                title: '🔊 ¿Quieres escuchar la respuesta?',
+                text: 'El tutor puede leerte la respuesta en voz alta',
+                background: '#0f172a',
+                color: '#f8fafc',
+                showCancelButton: true,
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, leer',
+                cancelButtonText: 'No, gracias'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    leerEnVozAlta(respuesta);
+                }
+            });
+            
         } catch {
             loading.remove();
             const errorMsg = document.createElement('div');
@@ -2877,6 +3348,10 @@
         if (e.altKey && e.key === 'g') {
             e.preventDefault();
             verInsignias();
+        }
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            exportarPDF();
         }
     });
 
