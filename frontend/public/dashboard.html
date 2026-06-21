@@ -1679,7 +1679,14 @@
     function leerRespuesta() {
         const chatContainer = document.getElementById('chatMessagesTutor');
         if (!chatContainer) return;
-        
+
+        // Si hay una respuesta guardada globalmente, usarla
+        if (window.lastResponse) {
+            leerEnVozAlta(window.lastResponse);
+            return;
+        }
+
+        // Fallback: buscar en el chat
         const messages = chatContainer.querySelectorAll('.chat-message.bot');
         if (messages.length === 0) {
             Swal.fire({
@@ -1693,11 +1700,11 @@
             });
             return;
         }
-        
+
         const lastMessage = messages[messages.length - 1];
         let texto = lastMessage.textContent || '';
-        texto = texto.replace(/[🤖]/g, '').trim();
-        
+        texto = texto.replace(/[🤖❌⚠️]/g, '').trim();
+
         if (!texto) {
             Swal.fire({
                 icon: 'info',
@@ -1710,7 +1717,7 @@
             });
             return;
         }
-        
+
         leerEnVozAlta(texto);
     }
 
@@ -2097,7 +2104,6 @@
             calendario: 'Calendario <small>· Eventos y fechas</small>',
             configuracion: 'Configuración <small>· Ajustes del sistema</small>',
             ayuda: 'Ayuda <small>· Centro de soporte</small>',
-            // Nuevos títulos
             mapa: 'Mapa Educativo <small>· Rutas de aprendizaje</small>',
             talento: 'Detector de Talento <small>· Descubre habilidades</small>',
             gemelo: 'Gemelo Digital <small>· Tu réplica académica</small>',
@@ -2120,7 +2126,6 @@
 
     // ============ OBTENER CONTENIDO DE CADA PÁGINA ============
     function obtenerContenidoPagina(page) {
-        // Mapeo de funciones de renderizado
         const funciones = {
             dashboard: renderDashboard,
             estudiantes: renderEstudiantes,
@@ -2131,7 +2136,6 @@
             calendario: renderCalendario,
             configuracion: renderConfiguracion,
             ayuda: renderAyuda,
-            // Nuevas páginas
             mapa: renderMapa,
             talento: renderTalento,
             gemelo: renderGemelo,
@@ -3177,7 +3181,6 @@
         } else if (page === 'cursos') {
             cargarCursos();
         } else if (page === 'gemelo') {
-            // Inicializar gráfico del gemelo digital
             setTimeout(() => {
                 const ctx = document.getElementById('gemeloChart');
                 if (ctx) {
@@ -3425,12 +3428,14 @@
         });
     }
 
+    // ============ ENVIAR PREGUNTA AL TUTOR IA (MEJORADO) ============
     async function enviarPreguntaTutor() {
         const input = document.getElementById('preguntaInputTutor');
         const chat = document.getElementById('chatMessagesTutor');
         const pregunta = input.value.trim();
         if (!pregunta) return;
 
+        // Mostrar mensaje del usuario
         const userMsg = document.createElement('div');
         userMsg.className = 'chat-message user';
         userMsg.textContent = pregunta;
@@ -3438,9 +3443,10 @@
         chat.scrollTop = chat.scrollHeight;
         input.value = '';
 
+        // Mostrar loading
         const loading = document.createElement('div');
         loading.className = 'chat-message bot';
-        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando...';
+        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando con IA...';
         chat.appendChild(loading);
         chat.scrollTop = chat.scrollHeight;
 
@@ -3448,21 +3454,30 @@
             const res = await fetch(`${API_URL}/tutor/preguntar`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pregunta, curso: 'general', estudiante_id: 1 })
+                body: JSON.stringify({
+                    pregunta: pregunta,
+                    curso: 'general',
+                    estudiante_id: 1,
+                    idioma: 'es'
+                })
             });
             const data = await res.json();
             loading.remove();
+
             const respuesta = data.data?.respuesta || 'No entendí, intenta de nuevo.';
             const botMsg = document.createElement('div');
             botMsg.className = 'chat-message bot';
             botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${respuesta}`;
             chat.appendChild(botMsg);
             chat.scrollTop = chat.scrollHeight;
-            
-            lastResponse = respuesta;
+
+            // Guardar para voz (importante para el botón de leer)
+            window.lastResponse = respuesta;
+
+            // Ganar puntos
             registrarAccion('pregunta');
-            
-            // Preguntar si quiere escuchar la respuesta
+
+            // Preguntar si quiere escuchar
             Swal.fire({
                 icon: 'question',
                 title: '🔊 ¿Quieres escuchar la respuesta?',
@@ -3479,14 +3494,40 @@
                     leerEnVozAlta(respuesta);
                 }
             });
-            
-        } catch {
+
+        } catch (error) {
+            console.error('Error en tutor IA:', error);
             loading.remove();
+            
+            // Mensaje de error con opción de reintentar
             const errorMsg = document.createElement('div');
             errorMsg.className = 'chat-message bot';
-            errorMsg.innerHTML = '❌ Error al conectar con el servidor.';
+            errorMsg.innerHTML = `❌ Error al conectar con la IA. <button onclick="reintentarPregunta()" class="btn btn-sm btn-outline-primary" style="padding: 0.2rem 0.8rem; margin-left: 0.5rem; font-size: 0.7rem;">Reintentar</button>`;
             chat.appendChild(errorMsg);
             chat.scrollTop = chat.scrollHeight;
+            
+            // Fallback: respuesta simulada
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-message bot';
+                botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>Lo siento, estoy teniendo problemas de conexión. Por favor, intenta de nuevo más tarde.`;
+                chat.appendChild(botMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 1000);
+        }
+    }
+
+    // Función para reintentar la última pregunta
+    function reintentarPregunta() {
+        const input = document.getElementById('preguntaInputTutor');
+        if (!input) return;
+        // Buscar la última pregunta del usuario en el chat
+        const chat = document.getElementById('chatMessagesTutor');
+        const userMessages = chat.querySelectorAll('.chat-message.user');
+        if (userMessages.length > 0) {
+            const lastUserMsg = userMessages[userMessages.length - 1];
+            input.value = lastUserMsg.textContent;
+            enviarPreguntaTutor();
         }
     }
 

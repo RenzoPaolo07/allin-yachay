@@ -57,6 +57,8 @@ const bienestarRoutes = require('./api/bienestar.routes');
 const oportunidadesRoutes = require('./api/oportunidades.routes');
 // backend/server.js - Agregar estas líneas
 const idiomaRoutes = require('./api/idioma.routes');
+// backend/server.js - Agregar
+const geminiRoutes = require('./api/gemini.routes');
 
 // Registrar rutas API
 app.use('/api/auth', authRoutes);
@@ -73,6 +75,8 @@ app.use('/api/bienestar', bienestarRoutes);
 app.use('/api/oportunidades', oportunidadesRoutes);
 // Registrar rutas
 app.use('/api/idiomas', idiomaRoutes);
+// Registrar rutas
+app.use('/api/gemini', geminiRoutes);
 
 // 🔥 RUTAS PARA EL FRONTEND - FORMA CORRECTA
 // Ruta principal
