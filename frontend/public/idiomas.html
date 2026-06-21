@@ -281,28 +281,40 @@
 
     // ============ APLICAR IDIOMA A TODA LA PÁGINA ============
     function aplicarIdiomaGlobal() {
-        // Usar el sistema i18n para aplicar el idioma
-        if (typeof i18n !== 'undefined') {
-            i18n.cambiarIdioma(idiomaSeleccionado);
+        const idioma = idiomaSeleccionado;
+        
+        // Usar el sistema i18n
+        if (typeof i18n !== 'undefined' && i18n.cargado) {
+            // Cambiar idioma
+            i18n.cambiarIdioma(idioma);
+            
+            // Mostrar notificación
             Swal.fire({
                 icon: 'success',
-                title: '✅ Idioma aplicado',
-                text: 'Toda la página está ahora en el idioma seleccionado',
+                title: '✅ Idioma aplicado correctamente',
+                text: `Toda la página está ahora en ${idiomasDisponibles.find(i => i.codigo === idioma)?.nombre || idioma}`,
                 background: '#0f172a',
                 color: '#f8fafc',
                 confirmButtonColor: '#3b82f6',
-                timer: 3000,
-                showConfirmButton: false
-            });
-            
-            // Redirigir al dashboard para ver los cambios completos
-            setTimeout(() => {
+                confirmButtonText: 'Ver cambios'
+            }).then(() => {
+                // Redirigir al dashboard para ver los cambios
                 window.location.href = '/dashboard';
-            }, 1500);
+            });
         } else {
-            // Fallback: guardar en localStorage y recargar
-            localStorage.setItem('allin_idioma', idiomaSeleccionado);
-            window.location.reload();
+            // Fallback: guardar y recargar
+            localStorage.setItem('allin_idioma', idioma);
+            Swal.fire({
+                icon: 'info',
+                title: '🔄 Recargando...',
+                text: 'La página se recargará para aplicar el idioma',
+                background: '#0f172a',
+                color: '#f8fafc',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location.href = '/dashboard';
+            });
         }
     }
 
