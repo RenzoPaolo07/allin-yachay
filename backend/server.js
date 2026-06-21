@@ -21,6 +21,10 @@ app.use(express.urlencoded({ extended: true }));
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 
+// backend/server.js - Agregar al inicio
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/data', express.static(path.join(__dirname, '../frontend/data')));
+
 // Importar modelos
 const { sequelize } = require('./models');
 
@@ -51,6 +55,8 @@ const talentoRoutes = require('./api/talento.routes');
 const crisisRoutes = require('./api/crisis.routes');
 const bienestarRoutes = require('./api/bienestar.routes');
 const oportunidadesRoutes = require('./api/oportunidades.routes');
+// backend/server.js - Agregar estas líneas
+const idiomaRoutes = require('./api/idioma.routes');
 
 // Registrar rutas API
 app.use('/api/auth', authRoutes);
@@ -65,6 +71,8 @@ app.use('/api/talento', talentoRoutes);
 app.use('/api/crisis', crisisRoutes);
 app.use('/api/bienestar', bienestarRoutes);
 app.use('/api/oportunidades', oportunidadesRoutes);
+// Registrar rutas
+app.use('/api/idiomas', idiomaRoutes);
 
 // 🔥 RUTAS PARA EL FRONTEND - FORMA CORRECTA
 // Ruta principal
