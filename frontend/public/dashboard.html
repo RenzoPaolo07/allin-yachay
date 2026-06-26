@@ -3315,21 +3315,28 @@
         try {
             const res = await fetch(`${API_URL}/dashboard`);
             const data = await res.json();
-            if (data.success) {
+            console.log('📊 Dashboard data:', data);
+            
+            if (data.success && data.data) {
                 const d = data.data;
                 document.getElementById('totalEstudiantes').textContent = d.total_estudiantes || '0';
                 document.getElementById('estudiantesActivos').textContent = d.activos || '0';
                 document.getElementById('estudiantesRiesgo').textContent = d.en_riesgo || '0';
                 document.getElementById('abandonados').textContent = d.abandonaron || '0';
+                
                 actualizarGraficos(d);
                 cargarEstudiantesTabla();
+            } else {
+                console.warn('⚠️ No se recibieron datos del dashboard');
             }
-        } catch {
-            document.getElementById('totalEstudiantes').textContent = '1,250';
-            document.getElementById('estudiantesActivos').textContent = '1,120';
-            document.getElementById('estudiantesRiesgo').textContent = '95';
-            document.getElementById('abandonados').textContent = '35';
-            actualizarGraficos({ predicciones: { bajo_riesgo: 720, riesgo_medio: 285, alto_riesgo: 95 } });
+        } catch (error) {
+            console.error('❌ Error cargando dashboard:', error);
+            // Datos de respaldo
+            document.getElementById('totalEstudiantes').textContent = '35';
+            document.getElementById('estudiantesActivos').textContent = '28';
+            document.getElementById('estudiantesRiesgo').textContent = '5';
+            document.getElementById('abandonados').textContent = '2';
+            actualizarGraficos({ predicciones: { bajo_riesgo: 20, riesgo_medio: 8, alto_riesgo: 5 } });
             cargarEstudiantesTabla();
         }
     }
@@ -3430,24 +3437,27 @@
     async function cargarEstudiantesFull() {
         const tbody = document.getElementById('estudiantesTableFull');
         if (!tbody) return;
+        
         try {
             const res = await fetch(`${API_URL}/estudiantes`);
             const data = await res.json();
-            if (data.success && data.data.length) {
+            console.log('👨‍🎓 Estudiantes recibidos:', data);
+            
+            if (data.success && data.data && data.data.length > 0) {
                 const colores = ['blue', 'green', 'yellow', 'red', 'purple'];
                 tbody.innerHTML = data.data.map((e, i) => `
                     <tr>
                         <td>
                             <div class="user-cell">
-                                <div class="user-avatar ${colores[i % colores.length]}">${e.nombres.charAt(0)}${e.apellidos.charAt(0)}</div>
+                                <div class="user-avatar ${colores[i % colores.length]}">${e.nombres ? e.nombres.charAt(0) : '?'}${e.apellidos ? e.apellidos.charAt(0) : '?'}</div>
                                 <div>
-                                    <div class="name">${e.nombres} ${e.apellidos}</div>
-                                    <div class="email">${e.email || ''}</div>
+                                    <div class="name">${e.nombres || ''} ${e.apellidos || ''}</div>
+                                    <div class="email">${e.email || 'sin email'}</div>
                                 </div>
                             </div>
                         </td>
                         <td>${e.carrera || 'Sin asignar'}</td>
-                        <td>${e.semestre || 'N/A'}</td>
+                        <td>${e.semestre_actual || 'N/A'}</td>
                         <td><span class="status-badge ${e.estado === 'activo' ? 'active' : e.estado === 'riesgo' ? 'riesgo' : 'abandono'}">${e.estado || 'Desconocido'}</span></td>
                         <td><span class="status-badge ${e.estado === 'activo' ? 'active' : e.estado === 'riesgo' ? 'riesgo' : 'abandono'}">${e.estado === 'activo' ? 'Activo' : e.estado === 'riesgo' ? 'En Riesgo' : 'Abandonó'}</span></td>
                         <td>
@@ -3460,13 +3470,12 @@
             } else {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No hay estudiantes registrados</td></tr>`;
             }
-        } catch {
-            tbody.innerHTML = `
-                <tr><td><div class="user-cell"><div class="user-avatar blue">RQ</div><div><div class="name">Renzo Quispe</div><div class="email">renzo@allinyachay.pe</div></div></div></td><td>Ing. Sistemas</td><td>5</td><td><span class="status-badge active">Activo</span></td><td><span class="status-badge active">Activo</span></td><td><button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-eye"></i></button></td></tr>
-                <tr><td><div class="user-cell"><div class="user-avatar yellow">MC</div><div><div class="name">María Ccorahua</div><div class="email">maria@allinyachay.pe</div></div></div></td><td>Ing. Civil</td><td>3</td><td><span class="status-badge riesgo">Riesgo</span></td><td><span class="status-badge riesgo">En Riesgo</span></td><td><button class="btn btn-sm btn-outline-primary" style="border-color: rgba(255,255,255,0.1); color: var(--text-muted);"><i class="fas fa-eye"></i></button></td></tr>
-            `;
+        } catch (error) {
+            console.error('❌ Error cargando estudiantes:', error);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error al cargar estudiantes</td></tr>`;
         }
     }
+
 
     async function cargarPredicciones() {
         try {
@@ -3647,44 +3656,49 @@
         try {
             const res = await fetch(`${API_URL}/becas/todas`);
             const data = await res.json();
+            console.log('📊 Becas recibidas:', data);
+            
             const grid = document.getElementById('becasGridFull');
             const table = document.getElementById('becasTable');
             
-            const becas = data.success ? data.data.becas : [
-                { nombre: 'Beca 18', entidad: 'PRONABEC', monto: 'S/ 20,000', tags: ['Nacional', 'Excelencia'] },
-                { nombre: 'Vocación Maestro', entidad: 'Minedu', monto: 'S/ 15,000', tags: ['Educación', 'Social'] },
-                { nombre: 'Líderes del Mañana', entidad: 'Fundación BBVA', monto: 'S/ 25,000', tags: ['Liderazgo', 'Privado'] }
-            ];
-            
-            grid.innerHTML = becas.map(b => `
-                <div class="col-lg-4 col-md-6">
-                    <div class="beca-card">
-                        <div class="beca-icon"><i class="fas fa-gift"></i></div>
-                        <h6>${b.nombre}</h6>
-                        <div class="beca-monto">${b.monto}</div>
-                        <div class="beca-entity">${b.entidad}</div>
-                        <div class="beca-tags">
-                            ${b.tags.map(t => `<span>${t}</span>`).join('')}
+            if (data.success && data.data && data.data.becas && data.data.becas.length > 0) {
+                const becas = data.data.becas;
+                
+                // Mostrar en grid
+                grid.innerHTML = becas.map(b => `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="beca-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 1.5rem; height: 100%;">
+                            <div style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-light); margin-bottom: 1rem;">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            <h6>${b.nombre || 'Sin nombre'}</h6>
+                            <div style="font-size: 1.3rem; font-weight: 900; color: var(--success);">${b.monto || 'No especificado'}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">${b.entidad || 'Sin entidad'}</div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;">
+                                ${b.nivel ? `<span style="background: rgba(255,255,255,0.05); padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">${b.nivel}</span>` : ''}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            table.innerHTML = becas.map(b => `
-                <tr>
-                    <td><strong>${b.nombre}</strong></td>
-                    <td>${b.entidad}</td>
-                    <td>${b.monto}</td>
-                    <td><span class="status-badge active">Activa</span></td>
-                    <td><button class="btn btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularBeca('${b.nombre}')">Postular</button></td>
-                </tr>
-            `).join('');
-        } catch {
-            document.getElementById('becasGridFull').innerHTML = `
-                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Beca 18</h6><div class="beca-monto">S/ 20,000</div><div class="beca-entity">PRONABEC</div></div></div>
-                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Vocación Maestro</h6><div class="beca-monto">S/ 15,000</div><div class="beca-entity">Minedu</div></div></div>
-                <div class="col-lg-4 col-md-6"><div class="beca-card"><div class="beca-icon"><i class="fas fa-gift"></i></div><h6>Líderes del Mañana</h6><div class="beca-monto">S/ 25,000</div><div class="beca-entity">Fundación BBVA</div></div></div>
-            `;
+                // Mostrar en tabla
+                table.innerHTML = becas.map(b => `
+                    <tr>
+                        <td><strong>${b.nombre || 'Sin nombre'}</strong></td>
+                        <td>${b.entidad || 'Sin entidad'}</td>
+                        <td>${b.monto || 'No especificado'}</td>
+                        <td><span class="status-badge active">Activa</span></td>
+                        <td><button class="btn btn-sm btn-primary-custom" style="padding: 0.3rem 1rem; font-size: 0.75rem;" onclick="postularBeca('${b.nombre}')">Postular</button></td>
+                    </tr>
+                `).join('');
+            } else {
+                grid.innerHTML = `<div class="col-12 text-center text-muted py-3">No hay becas disponibles</div>`;
+                table.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No hay becas registradas</td></tr>`;
+            }
+        } catch (error) {
+            console.error('❌ Error cargando becas:', error);
+            document.getElementById('becasGridFull').innerHTML = `<div class="col-12 text-center text-danger py-3">Error al cargar becas</div>`;
+            document.getElementById('becasTable').innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error al cargar datos</td></tr>`;
         }
     }
 
