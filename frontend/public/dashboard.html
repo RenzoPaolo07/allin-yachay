@@ -22,6 +22,9 @@
     
     <!-- html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Librería para renderizar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
         * {
@@ -1358,6 +1361,76 @@
 
         body.light-mode .ranking-section .table-card {
             background: rgba(255,255,255,0.8);
+        }
+
+        /* ============ CHAT MEJORADO ============ */
+        .chat-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 250px;
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .chat-message {
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            max-width: 85%;
+            font-size: 0.9rem;
+            animation: slideUp 0.3s ease;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .chat-message.user {
+            background: var(--accent-gradient);
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-message.bot {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-light);
+            border-left: 3px solid var(--accent);
+        }
+
+        .chat-message.bot i {
+            color: var(--accent-light);
+        }
+
+        .chat-message .code-block {
+            background: rgba(0,0,0,0.3);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+            display: block;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .chat-message .highlight {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            color: var(--accent-light);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -3428,12 +3501,25 @@
         });
     }
 
-    // ============ ENVIAR PREGUNTA AL TUTOR IA (MEJORADO) ============
+    // ============ CHAT DEL TUTOR CON GEMINI ============
     async function enviarPreguntaTutor() {
         const input = document.getElementById('preguntaInputTutor');
         const chat = document.getElementById('chatMessagesTutor');
         const pregunta = input.value.trim();
-        if (!pregunta) return;
+        
+        if (!pregunta) {
+            Swal.fire({
+                icon: 'warning',
+                title: '⚠️ Campo vacío',
+                text: 'Escribe una pregunta para el tutor',
+                background: '#0f172a',
+                color: '#f8fafc',
+                confirmButtonColor: '#3b82f6',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            return;
+        }
 
         // Mostrar mensaje del usuario
         const userMsg = document.createElement('div');
@@ -3442,11 +3528,12 @@
         chat.appendChild(userMsg);
         chat.scrollTop = chat.scrollHeight;
         input.value = '';
+        input.disabled = true;
 
         // Mostrar loading
         const loading = document.createElement('div');
         loading.className = 'chat-message bot';
-        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando con IA...';
+        loading.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Pensando con Gemini 3.5 Flash...';
         chat.appendChild(loading);
         chat.scrollTop = chat.scrollHeight;
 
@@ -3461,60 +3548,80 @@
                     idioma: 'es'
                 })
             });
+            
             const data = await res.json();
             loading.remove();
 
-            const respuesta = data.data?.respuesta || 'No entendí, intenta de nuevo.';
-            const botMsg = document.createElement('div');
-            botMsg.className = 'chat-message bot';
-            botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${respuesta}`;
-            chat.appendChild(botMsg);
-            chat.scrollTop = chat.scrollHeight;
-
-            // Guardar para voz (importante para el botón de leer)
-            window.lastResponse = respuesta;
-
-            // Ganar puntos
-            registrarAccion('pregunta');
-
-            // Preguntar si quiere escuchar
-            Swal.fire({
-                icon: 'question',
-                title: '🔊 ¿Quieres escuchar la respuesta?',
-                text: 'El tutor puede leerte la respuesta en voz alta',
-                background: '#0f172a',
-                color: '#f8fafc',
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, leer',
-                cancelButtonText: 'No, gracias'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    leerEnVozAlta(respuesta);
-                }
-            });
-
-        } catch (error) {
-            console.error('Error en tutor IA:', error);
-            loading.remove();
-            
-            // Mensaje de error con opción de reintentar
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'chat-message bot';
-            errorMsg.innerHTML = `❌ Error al conectar con la IA. <button onclick="reintentarPregunta()" class="btn btn-sm btn-outline-primary" style="padding: 0.2rem 0.8rem; margin-left: 0.5rem; font-size: 0.7rem;">Reintentar</button>`;
-            chat.appendChild(errorMsg);
-            chat.scrollTop = chat.scrollHeight;
-            
-            // Fallback: respuesta simulada
-            setTimeout(() => {
+            if (data.success && data.data) {
+                const respuesta = data.data.respuesta || 'No entendí, intenta de nuevo.';
+                const modo = data.data.modo || 'desconocido';
+                
+                // Mostrar respuesta del bot
                 const botMsg = document.createElement('div');
                 botMsg.className = 'chat-message bot';
-                botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>Lo siento, estoy teniendo problemas de conexión. Por favor, intenta de nuevo más tarde.`;
+                
+                // Formatear la respuesta con saltos de línea
+                const htmlRenderizado = marked.parse(respuesta);
+                botMsg.innerHTML = `<i class="fas fa-robot me-2"></i>${htmlRenderizado}`;
                 chat.appendChild(botMsg);
                 chat.scrollTop = chat.scrollHeight;
-            }, 1000);
+
+                // Mostrar badge del modo usado
+                const badge = document.createElement('div');
+                badge.className = 'text-end';
+                badge.style.cssText = 'font-size: 0.6rem; color: #94a3b8; margin-top: 0.2rem;';
+                badge.textContent = `🤖 ${modo}`;
+                chat.appendChild(badge);
+                chat.scrollTop = chat.scrollHeight;
+
+                // Guardar para voz
+                lastResponse = respuesta;
+                
+                // Ganar puntos
+                registrarAccion('pregunta');
+
+                // Preguntar si quiere escuchar la respuesta (solo si es larga)
+                if (respuesta.length > 50) {
+                    Swal.fire({
+                        icon: 'question',
+                        title: '🔊 ¿Quieres escuchar la respuesta?',
+                        text: 'El tutor puede leerte la respuesta en voz alta',
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Sí, leer',
+                        cancelButtonText: 'No, gracias'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            leerEnVozAlta(respuesta);
+                        }
+                    });
+                }
+            } else {
+                throw new Error(data.error || 'Error al obtener respuesta');
+            }
+
+        } catch (error) {
+            console.error('❌ Error en el chat:', error);
+            loading.remove();
+            
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'chat-message bot';
+            errorMsg.innerHTML = `❌ Error al conectar con el servidor. <br><small style="color: #94a3b8;">${error.message}</small>`;
+            chat.appendChild(errorMsg);
+            chat.scrollTop = chat.scrollHeight;
+        } finally {
+            input.disabled = false;
+            input.focus();
         }
+    }
+
+    // Función para pregunta de ejemplo
+    function preguntaEjemplo(pregunta) {
+        document.getElementById('preguntaInputTutor').value = pregunta;
+        enviarPreguntaTutor();
     }
 
     // Función para reintentar la última pregunta

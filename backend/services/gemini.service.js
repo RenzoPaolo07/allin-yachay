@@ -104,7 +104,6 @@ class GeminiService {
     async chatTutor(mensaje, contexto = {}) {
         console.log(`📨 Mensaje: "${mensaje.substring(0, 50)}..."`);
         
-        // Esperar a que termine la inicialización si está en proceso
         if (!this.inicializado && !this.modoSimulacion) {
             console.log('⏳ Esperando inicialización de Gemini...');
             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -122,33 +121,42 @@ class GeminiService {
         try {
             const { estudiante, curso, idioma } = contexto;
             
-            // Construir prompt
-            let prompt = `Eres un tutor académico experto y amigable llamado "ALLIN YACHAY" (que significa "Buen Conocimiento" en quechua). 
-                        Tu misión es ayudar a estudiantes peruanos a no abandonar sus estudios.
-                        Responde en ${idioma || 'español'} de forma clara, didáctica y con ejemplos prácticos.
-                        Si el estudiante pregunta algo que no sabes, admítelo y sugiere dónde buscar información.
-                        Sé cálido, motivador y usa un lenguaje cercano.`;
+            // 🔥 PROMPT MUY ESPECÍFICO PARA RESPUESTAS COMPLETAS
+            let prompt = `Eres un tutor académico llamado "ALLIN YACHAY". 
+    Responde en español a esta pregunta de un estudiante universitario.
+    Da una respuesta COMPLETA, DETALLADA y CON EJEMPLOS.
+    No te cortes, responde todo lo que sepas sobre el tema.
 
-            if (estudiante) {
-                prompt += `\n\nEstás ayudando a ${estudiante.nombre || 'un estudiante'}.`;
-                if (estudiante.carrera) prompt += ` Estudia ${estudiante.carrera}.`;
-                if (estudiante.semestre) prompt += ` Está en ${estudiante.semestre}° semestre.`;
-                if (estudiante.promedio) prompt += ` Su promedio actual es ${estudiante.promedio}.`;
-            }
+    Pregunta: ${mensaje}
 
-            if (curso) {
-                prompt += `\n\nEl tema de la consulta es: ${curso}.`;
-            }
-
-            prompt += `\n\n📝 Pregunta del estudiante: ${mensaje}\n\n💡 Respuesta del tutor:`;
+    Respuesta completa:`;
 
             console.log(`🔄 Enviando consulta a Gemini (${this.modelName})...`);
             
-            const result = await this.model.generateContent(prompt);
+            const result = await this.model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 2048,  // 🔥 MÁXIMO PARA RESPUESTAS LARGAS
+                    topK: 40,
+                    topP: 0.95,
+                }
+            });
+            
             const response = await result.response;
-            const texto = response.text();
+            let texto = response.text();
 
             console.log(`✅ Respuesta recibida de Gemini (${this.modelName})`);
+            console.log(`📏 Longitud: ${texto?.length || 0} caracteres`);
+
+            // 🔥 SI LA RESPUESTA ESTÁ VACÍA O ES MUY CORTA, USAR FALLBACK
+            if (!texto || texto.length < 20) {
+                console.log('⚠️ Respuesta muy corta o vacía, usando fallback');
+                return this._simularRespuesta(mensaje);
+            }
+
+            // 🔥 LIMPIAR LA RESPUESTA (eliminar caracteres extraños)
+            texto = texto.replace(/^["']|["']$/g, '').trim();
 
             return {
                 exito: true,
@@ -163,25 +171,9 @@ class GeminiService {
         } catch (error) {
             console.error('❌ Error en Gemini:', error.message);
             
-            // Si es error de cuota, esperar y reintentar
             if (error.message.includes('429')) {
-                console.log('⏳ Cuota excedida, esperando 60 segundos...');
-                await new Promise(resolve => setTimeout(resolve, 60000));
-                try {
-                    const result = await this.model.generateContent(
-                        `Eres un tutor académico. Responde en español: ${mensaje}`
-                    );
-                    const response = await result.response;
-                    return {
-                        exito: true,
-                        respuesta: response.text(),
-                        mensaje_original: mensaje,
-                        modo: 'gemini-retry',
-                        modelo: this.modelName
-                    };
-                } catch (retryError) {
-                    console.error('❌ Reintento falló:', retryError.message);
-                }
+                console.log('⏳ Cuota excedida, esperando...');
+                await new Promise(resolve => setTimeout(resolve, 30000));
             }
             
             return {

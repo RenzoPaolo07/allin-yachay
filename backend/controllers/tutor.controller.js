@@ -7,8 +7,7 @@ const respuestasFallback = [
     'Buena pregunta. La clave está en entender la relación entre estos conceptos.',
     'Interesante punto. Podemos abordarlo desde varios ángulos. ¿Qué enfoque prefieres?',
     'Para entender esto mejor, te recomiendo ver ejemplos prácticos.',
-    '¡Qué buena consulta! Te sugiero consultar los recursos adicionales en nuestra plataforma.',
-    'Entiendo lo que preguntas. Este es un tema importante en tu carrera.'
+    '¡Qué buena consulta! Te sugiero consultar los recursos adicionales en nuestra plataforma.'
 ];
 
 exports.preguntar = async (req, res) => {
@@ -45,12 +44,20 @@ exports.preguntar = async (req, res) => {
                     idioma: idioma || 'es'
                 });
 
-                if (resultado.exito && resultado.modo === 'gemini') {
+                // 🔥 VERIFICAR EXPLÍCITAMENTE LA RESPUESTA
+                console.log(`📝 Respuesta RAW de Gemini: "${resultado.respuesta}"`);
+                console.log(`📏 Longitud: ${resultado.respuesta?.length || 0} caracteres`);
+
+                if (resultado.exito && resultado.respuesta && resultado.respuesta.length > 5) {
+                    // 🔥 FORZAR LA RESPUESTA COMPLETA
                     respuesta = resultado.respuesta;
                     modo = `gemini (${resultado.modelo || GeminiService.modelName})`;
                     console.log(`✅ Respuesta generada con ${modo}`);
+                    console.log(`📝 Respuesta completa: "${respuesta.substring(0, 200)}..."`);
                 } else {
-                    throw new Error('Gemini no pudo generar respuesta');
+                    console.log('⚠️ Respuesta inválida de Gemini, usando fallback');
+                    respuesta = respuestasFallback[Math.floor(Math.random() * respuestasFallback.length)];
+                    modo = 'fallback';
                 }
             } catch (error) {
                 console.log('⚠️ Error con Gemini, usando fallback:', error.message);
@@ -63,10 +70,15 @@ exports.preguntar = async (req, res) => {
             modo = 'fallback';
         }
 
+        // 🔥 ASEGURAR QUE LA RESPUESTA SEA COMPLETA
+        const respuestaFinal = respuesta || 'Lo siento, no pude generar una respuesta.';
+        
+        console.log(`📤 Enviando al frontend: "${respuestaFinal.substring(0, 100)}..."`);
+
         res.json({
             success: true,
             data: {
-                respuesta: respuesta,
+                respuesta: respuestaFinal,
                 pregunta_original: pregunta,
                 curso: curso || 'General',
                 modo: modo,
